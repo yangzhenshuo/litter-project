@@ -51,19 +51,19 @@ int main(void)
 		  
 	  camera_sem = rt_sem_create("camera", 0, RT_IPC_FLAG_FIFO);
 		//初始化pit定时器用来计时
-		//pit_init();
-	
+		pit_init();
+	  //CarInfoInit();
+	  //SystemSettingsInit();
     EnableGlobalIRQ(0);
     while (1)
     {
 		    //等待摄像头采集完毕
         rt_sem_take(camera_sem, RT_WAITING_FOREVER);
         //开始处理摄像头图像
-				//pit_start(PIT_CH0);
-        BinaryImageConvert(3);
-				//use_time = pit_get_us(PIT_CH0);
-				//pit_close(PIT_CH0);
-				mt9v03x_csi_finish_flag = 0;
+				pit_start(PIT_CH0);
+        BinaryImageConvert(2);
+				use_time = pit_get_ms(PIT_CH0);
+				pit_close(PIT_CH0);
 				//发送图片数据到上位机
 				//csi_seekfree_sendimg_03x(USART_1,BinaryImage[0],MT9V03X_CSI_W,MT9V03X_CSI_H);
         //根据图像计算出车模与赛道之间的位置偏差
@@ -77,8 +77,8 @@ int main(void)
 			
 			
 			// 进入临界区 避免打印的时候被其他线程打断
-			rt_kprintf("main_end\n");
-			//rt_kprintf("%d\n",use_time);
+			//rt_kprintf("main_end:%d\n",use_time);
+			
 			rt_thread_mdelay(100);
     }
 }

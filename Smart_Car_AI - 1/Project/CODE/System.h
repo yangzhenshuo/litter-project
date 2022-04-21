@@ -120,4 +120,7 @@ extern CarPulseTypedef CarPulse;
 extern ControlPidTypedef SpeedControlPid;
 extern SystemSettingsTypedef SystemSettings;
 
+static inline void CarInfoInit(void);
+static inline void SystemSettingsInit(void);
+
 #endif

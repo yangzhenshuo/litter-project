@@ -119,9 +119,9 @@ int hardware_init(void)
 	//陀螺仪零飘初始化
 	//gyro_offset_init();
 	//OpenArt初始化
-//	openart_mini_init();
+  //openart_mini_init();
 	//无线转串口通信初始化
-	seekfree_wireless_init();
+	//seekfree_wireless_init();
 	return 0;
 }
 /***********************************************************
@@ -133,10 +133,8 @@ int software_init(void)
 {
 	buzzer_thread_init();//蜂鸣器线程初始化
 	display_thread_init();//显示线程初始化
-	button_init();//按键检测低时器初始化
+	button_init();//按键检测定时器初始化
 	//timer_pit_init();//定时器初始化
-	//CarInfoInit();
-	//SystemSettingsInit();
 	//camera_thread_init();
 	return 0;
 }
