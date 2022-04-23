@@ -17,7 +17,8 @@
 
 SystemSettingsTypedef SystemSettings;//系统信息
 CarInfoTypedef CarInfo;//小车信息
-ControlPidTypedef SpeedControlPid = {9.0,0.5,0.0};//速度控制pid参数初始化
+ControlPidTypedef SpeedControlPid = {1.0,0.5,0.0};//速度控制pid参数初始化
+ControlPidTypedef AngleControlPid = {5, 0, 1};              //角度pid参数
 CarPulseTypedef CarPulse = {0,0,0,0};//编码器初值
 GyroOffsetTypedef GyroOffset = {0.0,0.0,0.0};//陀螺仪零飘初始化数据
 ICMTypedef icm = {0.0,0.0,0.0,0.0,0.0,0.0};//ICM数据初始化
@@ -34,22 +35,20 @@ static inline void CarInfoInit(void)
 {
     CarInfo.IsRun = 'F';                 //是否运行
     CarInfo.IsOutGarage = 'F';           //是否出库
-    CarInfo.IsCameraDetectRun = 'T';     //摄像头检测是否运作
+    //CarInfo.IsCameraDetectRun = 'T';     //摄像头检测是否运作
     CarInfo.IsMotorStalled = 'F';        //电机是否堵转
-    CarInfo.IsMotorDiffrientialOn = 'T'; //电机差速是否开启
+    //CarInfo.IsMotorDiffrientialOn = 'T'; //电机差速是否开启
 
     CarInfo.IsAiOn = 'F';      //识别模式是否打开
-    CarInfo.IsCounterOn = 'F'; //定时器是否打开
-    CarInfo.SecCount = 0;      //时间计数值
-
-    CarInfo.SpeedSet = 0;    //速度设置
+    CarInfo.SpeedSet_x = 0;    //x轴速度设置
+	  CarInfo.SpeedSet_y = 0;    //y轴速度设置
+	  CarInfo.SpeedSet_z = 0;    //z轴速度设置
     CarInfo.RealSpeed = 0;   //真实速度
     CarInfo.AngleSet = 0;    //角度设置
-    CarInfo.RealAngle = 0;   //真实角度
     CarInfo.PositionSet = 0; //位置设置
 		CarInfo.pitch = 0.0;
 		CarInfo.roll = 0.0;
-		CarInfo.yaw = 0.0;
+		CarInfo.yaw = 0.0;       //真实角度
 
     CarInfo.BinaryThreshold = 0; //二值化阈值
     CarInfo.RunDistance = 0;     //小车运行距离
@@ -69,15 +68,7 @@ static inline void SystemSettingsInit(void)
 
     SystemSettings.BinaryMethod = 1; //二值化方法
 
-    SystemSettings.StraightSpeed = 150;      //直道速度
-    SystemSettings.InTurnSpeed = 130;        //入弯速度
-    SystemSettings.OutTurnSpeed = 140;       //出弯速度
-    SystemSettings.InRampSpeed = 100;        //入坡道速度
-    SystemSettings.OutRampSpeed = 120;       //出坡道速度
-    SystemSettings.InForkSpeed = 120;        //入三岔速度
-    SystemSettings.OutForkSpeed = 130;       //出三岔速度
-    SystemSettings.InCircleSpeed = 135;      //入圆环速度
-    SystemSettings.OutCircleSpeed = 140;     //出圆环速度
+   
     SystemSettings.ApriltagSearchSpeed = 10; //搜索Apriltag速度
     SystemSettings.TargetSearchSpeed = 10;   //搜索靶子速度
 }

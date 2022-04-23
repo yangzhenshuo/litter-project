@@ -48,7 +48,8 @@ INIT_APP_EXPORT(software_init);
 INIT_APP_EXPORT(hardware_init);
 int main(void)
 {
-		  
+		DisableGlobalIRQ();
+		//创建摄像头信号量 
 	  camera_sem = rt_sem_create("camera", 0, RT_IPC_FLAG_FIFO);
 		//初始化pit定时器用来计时
 		pit_init();
@@ -60,8 +61,10 @@ int main(void)
 		    //等待摄像头采集完毕
         rt_sem_take(camera_sem, RT_WAITING_FOREVER);
         //开始处理摄像头图像
+				rt_kprintf("Start process\n");
+
 				pit_start(PIT_CH0);
-        BinaryImageConvert(2);
+        BinaryImageConvert(1);
 				use_time = pit_get_ms(PIT_CH0);
 				pit_close(PIT_CH0);
 				//发送图片数据到上位机
@@ -77,7 +80,7 @@ int main(void)
 			
 			
 			// 进入临界区 避免打印的时候被其他线程打断
-			//rt_kprintf("main_end:%d\n",use_time);
+			rt_kprintf("main_end:%d\n",use_time);
 			
 			rt_thread_mdelay(100);
     }

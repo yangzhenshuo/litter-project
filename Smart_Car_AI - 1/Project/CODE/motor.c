@@ -1,10 +1,14 @@
 #include "motor.h"
 
-#define DIR_L				D0
-#define DIR_R				D2
+#define f_DIR_L				D0
+#define f_DIR_R				D1
+#define r_DIR_L       D14
+#define r_DIR_R       D15
 
-#define PWM_L				PWM1_MODULE3_CHB_D1
-#define PWM_R				PWM2_MODULE3_CHB_D3
+#define f_PWM_L				PWM2_MODULE3_CHA_D2
+#define f_PWM_R				PWM2_MODULE3_CHB_D3
+#define r_PWM_L       PWM1_MODULE0_CHA_D12
+#define r_PWM_R       PWM1_MODULE0_CHB_D13
 /***********************************************************
  * @brief 电机控制引脚初始化
  * @param
@@ -12,11 +16,15 @@
 ***********************************************************/
 void motor_init(void)
 {
-	gpio_init(DIR_L, GPO, GPIO_HIGH, GPIO_PIN_CONFIG);
-	gpio_init(DIR_R, GPO, GPIO_HIGH, GPIO_PIN_CONFIG);
+	gpio_init(f_DIR_L, GPO, GPIO_HIGH, GPIO_PIN_CONFIG);
+	gpio_init(f_DIR_R, GPO, GPIO_HIGH, GPIO_PIN_CONFIG);
+	gpio_init(r_DIR_L, GPO, GPIO_HIGH, GPIO_PIN_CONFIG);
+	gpio_init(r_DIR_R, GPO, GPIO_HIGH, GPIO_PIN_CONFIG);
 
-	pwm_init(PWM_L, 10000, 0);												// PWM 通道2 初始化频率10KHz 占空比初始为0
-	pwm_init(PWM_R, 10000, 0);												// PWM 通道4 初始化频率10KHz 占空比初始为0
+	pwm_init(f_PWM_L, 17000, 0);												// 
+	pwm_init(f_PWM_R, 17000, 0);												// 
+	pwm_init(r_PWM_L, 17000, 0);												// 
+	pwm_init(r_PWM_R, 17000, 0);												// 初始化频率17KHz 占空比初始为0
 }
 
 /***********************************************************
@@ -25,27 +33,69 @@ void motor_init(void)
  * @param RightMotorPwm 右轮pwm
  * @return
 ***********************************************************/
-void SetMotorPwmAndDir(int32 LeftMotorPwm, int32 RightMotorPwm)
+void motor_control(int32 f_duty_l, int32 f_duty_r, int32 r_duty_l, int32 r_duty_r)
 {
-    if (LeftMotorPwm >= 0) //左轮正转
+    //对占空比限幅
+	f_duty_l = limit(f_duty_l, PWM_DUTY_MAX);
+	f_duty_r = limit(f_duty_r, PWM_DUTY_MAX);
+	r_duty_l = limit(r_duty_l, PWM_DUTY_MAX);
+	r_duty_r = limit(r_duty_r, PWM_DUTY_MAX);
+    
+    if(r_duty_l >= 0)											// 左侧正转
     {
-        pwm_duty(PWM_L, 0);                    //左轮PWM输出
-        pwm_duty(PWM_R, (uint32)LeftMotorPwm); //右轮PWM输出
+        gpio_set(r_DIR_L, GPIO_HIGH);							// DIR输出高电平
+        pwm_duty(r_PWM_L, r_duty_l);						    // 计算占空比
     }
-
-    else //左轮反转
+    else													// 左侧反转
     {
-        pwm_duty(PWM_L, -(uint32)LeftMotorPwm); //左轮PWM输出
-        pwm_duty(PWM_R,0);                     //右轮PWM输出
+        gpio_set(r_DIR_L, GPIO_LOW);							// DIR输出低电平
+        pwm_duty(r_PWM_L, -r_duty_l);							// 计算占空比
     }
-    if (RightMotorPwm >= 0) //右轮正转
+    
+    if(r_duty_r >= 0)											// 右侧正转
     {
-        pwm_duty(PWM_L, 0);                     //左轮PWM输出
-        pwm_duty(PWM_R, (uint32)RightMotorPwm); //右轮PWM输出
+        gpio_set(r_DIR_R, GPIO_HIGH);							// DIR输出高电平
+        pwm_duty(r_PWM_R, r_duty_r);							// 计算占空比
     }
-    else //右轮反转
+    else													// 右侧反转
     {
-        pwm_duty(PWM_L, -(uint32)RightMotorPwm); //左轮PWM输出
-        pwm_duty(PWM_R, 0);                      //右轮PWM输出
+        gpio_set(r_DIR_R, GPIO_LOW);							// DIR输出低电平
+        pwm_duty(r_PWM_R, -r_duty_r);							// 计算占空比
     }
+    
+    if(f_duty_l >= 0)											// 左侧正转
+    {
+        gpio_set(f_DIR_L, GPIO_HIGH);							// DIR输出高电平
+        pwm_duty(f_PWM_L, f_duty_l);						    // 计算占空比
+    }
+    else													// 左侧反转
+    {
+        gpio_set(f_DIR_L, GPIO_LOW);							// DIR输出低电平
+        pwm_duty(f_PWM_L, -f_duty_l);							// 计算占空比
+    }
+    
+    if(f_duty_r >= 0)											// 右侧正转
+    {
+        gpio_set(f_DIR_R, GPIO_HIGH);							// DIR输出高电平
+        pwm_duty(f_PWM_R, f_duty_r);							// 计算占空比
+    }
+    else													// 右侧反转
+    {
+        gpio_set(f_DIR_R, GPIO_LOW);							// DIR输出低电平
+        pwm_duty(f_PWM_R, -f_duty_r);							// 计算占空比
+    }
+}
+/***********************************************************
+ * @brief 双电机停转
+ * @param
+ * @return
+***********************************************************/
+void MotorStopped(void)
+{
+    //前轮停转
+    pwm_duty(f_PWM_L, 0); 
+    pwm_duty(f_PWM_R, 0); 
+    //后轮停转
+    pwm_duty(r_PWM_L, 0); 
+    pwm_duty(r_PWM_R, 0);
 }

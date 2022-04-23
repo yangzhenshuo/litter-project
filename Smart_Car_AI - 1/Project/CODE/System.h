@@ -6,6 +6,8 @@
 int hardware_init(void);
 int software_init(void);
 
+void SystemStart(void);
+
 typedef struct
 {
 	float x;
@@ -50,13 +52,12 @@ typedef struct
   uint8 IsMotorDiffrientialOn; //电机差速是否开启
 
   uint8 IsAiOn;      //识别模式是否打开
-  uint8 IsCounterOn; //两分钟定时器是否打开
-  uint8 SecCount;    //定时器计数值（秒）
 
-  float SpeedSet;  //速度设置
+  float SpeedSet_x;  //x轴速度设置
+	float SpeedSet_y;  //y轴速度设置
+	float SpeedSet_z;  //z轴速度设置
   float RealSpeed; //真实速度
   float AngleSet;  //角度设置
-  float RealAngle; //真实角度
 	float pitch;//俯仰角
 	float roll;//横滚角
 	float yaw;//航向角
@@ -95,15 +96,6 @@ typedef struct
 
   uint8 BinaryMethod; //二值化方法
 
-  uint16 StraightSpeed;       //直道速度
-  uint16 InTurnSpeed;         //入弯速度
-  uint16 OutTurnSpeed;        //出弯速度
-  uint16 InRampSpeed;         //入坡道速度
-  uint16 OutRampSpeed;        //出坡道速度
-  uint16 InForkSpeed;         //入三岔速度
-  uint16 OutForkSpeed;        //出三岔速度
-  uint16 InCircleSpeed;       //入圆环速度
-  uint16 OutCircleSpeed;      //出圆环速度
   uint16 ApriltagSearchSpeed; //搜索Apriltag速度
   uint16 TargetSearchSpeed;   //搜索靶子速度
 
@@ -118,6 +110,7 @@ extern coordinateTypedef coordinate;
 extern CarInfoTypedef CarInfo;
 extern CarPulseTypedef CarPulse;
 extern ControlPidTypedef SpeedControlPid;
+extern ControlPidTypedef AngleControlPid;
 extern SystemSettingsTypedef SystemSettings;
 
 static inline void CarInfoInit(void);

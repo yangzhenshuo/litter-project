@@ -27,6 +27,7 @@ static float ChangeIA = 100; //变积分控制A系数
 static float ChangeIB = 10;  //变积分控制B系数
 
 /********左前轮********/
+static float SpeedSet_L1=0;                //左前轮设置速度
 static float f_LeftSpeedDeltaPrev = 0;     //左前轮前一次速度偏差
 static float f_LeftSpeedDeltaPrevPrev = 0; //左前轮前前一次速度偏差
 
@@ -34,6 +35,7 @@ static float f_LeftSpeedControlBais = 0; //左前轮速度控制增量
 static float f_LeftSpeedControlOut = 0;  //左前轮速度环输出
 
 /********左后轮********/
+static float SpeedSet_L2=0;                //左后轮设置速度
 static float r_LeftSpeedDeltaPrev = 0;     //左后轮前一次速度偏差
 static float r_LeftSpeedDeltaPrevPrev = 0; //左后轮前前一次速度偏差
 
@@ -41,6 +43,7 @@ static float r_LeftSpeedControlBais = 0; //左后轮速度控制增量
 static float r_LeftSpeedControlOut = 0;  //左后轮速度环输出
 
 /********右前轮********/
+static float SpeedSet_R1=0;                //右前轮设置速度
 static float f_RightSpeedDeltaPrev = 0;     //右前轮前一次速度偏差
 static float f_RightSpeedDeltaPrevPrev = 0; //右前轮前前一次速度偏
 
@@ -48,6 +51,7 @@ static float f_RightSpeedControlBais = 0; //右前轮速度控制增量
 static float f_RightSpeedControlOut = 0;  //右前轮速度环输出
 
 /********右后轮********/
+static float SpeedSet_R2=0;                //右后轮设置速度
 static float r_RightSpeedDeltaPrev = 0;     //右后轮前一次速度偏差
 static float r_RightSpeedDeltaPrevPrev = 0; //右后轮前前一次速度偏
 
@@ -55,6 +59,8 @@ static float r_RightSpeedControlBais = 0; //右后轮速度控制增量
 static float r_RightSpeedControlOut = 0;  //右后轮速度环输出
 
 static float MotorDifferential = 0; //电机用方向差速
+/*************角度控制参数******************/
+static float AngleDeltaPrev = 0;  //前一次角速度偏差
 
 /***********************************************************
  * @brief 复位控制变量（不包括pid参数）
@@ -76,34 +82,65 @@ void ResetControlArgs(void)
     f_RightStallCount = 0; //右前电机堵转次数
     r_LeftStallCount = 0;  //左后电机堵转次数
     r_RightStallCount = 0; //右后电机堵转次数
+	 /*************角度控制参数******************/
+   static float AngleDeltaPrev = 0;  //前一次角速度偏差
 	
-    /********左前轮********/
-    f_LeftSpeedDeltaPrev = 0;     //左前轮前一次速度偏差
-    f_LeftSpeedDeltaPrevPrev = 0; //左前轮前前一次速度偏差
+   /********左前轮********/
+   static float SpeedSet_L1=0;                //左前轮设置速度
+   static float f_LeftSpeedDeltaPrev = 0;     //左前轮前一次速度偏差
+   static float f_LeftSpeedDeltaPrevPrev = 0; //左前轮前前一次速度偏差
 
-    f_LeftSpeedControlBais = 0; //左前轮速度控制增量
-    f_LeftSpeedControlOut = 0;  //左前轮速度环输出
+   static float f_LeftSpeedControlBais = 0; //左前轮速度控制增量
+   static float f_LeftSpeedControlOut = 0;  //左前轮速度环输出
 
-    /********左后轮********/
-    r_LeftSpeedDeltaPrev = 0;     //左后轮前一次速度偏差
-    r_LeftSpeedDeltaPrevPrev = 0; //左后轮前前一次速度偏差
+   /********左后轮********/
+   static float SpeedSet_L2=0;                //左后轮设置速度
+   static float r_LeftSpeedDeltaPrev = 0;     //左后轮前一次速度偏差
+   static float r_LeftSpeedDeltaPrevPrev = 0; //左后轮前前一次速度偏差
 
-    r_LeftSpeedControlBais = 0; //左后轮速度控制增量
-    r_LeftSpeedControlOut = 0;  //左后轮速度环输出
+   static float r_LeftSpeedControlBais = 0; //左后轮速度控制增量
+   static float r_LeftSpeedControlOut = 0;  //左后轮速度环输出
 
-    /********右前轮********/
-    f_RightSpeedDeltaPrev = 0;     //右前轮前一次速度偏差
-    f_RightSpeedDeltaPrevPrev = 0; //右前轮前前一次速度偏
-    
-		f_RightSpeedControlBais = 0; //右前轮速度控制增量
-    f_RightSpeedControlOut = 0;  //右前轮速度环输出
+   /********右前轮********/
+   static float SpeedSet_R1=0;                //右前轮设置速度
+   static float f_RightSpeedDeltaPrev = 0;     //右前轮前一次速度偏差
+   static float f_RightSpeedDeltaPrevPrev = 0; //右前轮前前一次速度偏
 
-    /********右后轮********/
-    r_RightSpeedDeltaPrev = 0;     //右后轮前一次速度偏差
-    r_RightSpeedDeltaPrevPrev = 0; //右后轮前前一次速度偏
+   static float f_RightSpeedControlBais = 0; //右前轮速度控制增量
+   static float f_RightSpeedControlOut = 0;  //右前轮速度环输出
 
-    r_RightSpeedControlBais = 0; //右后轮速度控制增量
-    r_RightSpeedControlOut = 0;  //右后轮速度环输出
+   /********右后轮********/
+   static float SpeedSet_R2=0;                //右后轮设置速度
+   static float r_RightSpeedDeltaPrev = 0;     //右后轮前一次速度偏差
+   static float r_RightSpeedDeltaPrevPrev = 0; //右后轮前前一次速度偏
+
+   static float r_RightSpeedControlBais = 0; //右后轮速度控制增量
+   static float r_RightSpeedControlOut = 0;  //右后轮速度环输出
+}
+/***********************************************************
+ * @brief 角速度控制计算,位置式,PD控制,不完全微分
+ * @param
+ * @return
+***********************************************************/
+static inline void AngleControlCal(void)
+{
+	  float AngleDelta;                                  //角速度偏差
+    AngleDelta = CarInfo.AngleSet - icm.gyro_z; //计算偏差量
+    //MotorDifferential = AdjustablePars.par_5 * AngleDelta; //计算电机差速
+    //MotorDifferential = AdjustablePars.par_5 * CarInfo.RealSpeed * tan((float)SteerOut * 0.00175);
+    //if (SystemSettings.FuzzyEnable == 'T')
+    //SteerGetP(&AngleControlPid.P, ImageStatus.OFFLine, AngleDelta);                                   //模糊控制动态P
+    CarInfo.SpeedSet_z= AngleControlPid.P * AngleDelta + AngleControlPid.D * (AngleDelta - AngleDeltaPrev); //位置式PD控制器
+    AngleDeltaPrev = AngleDelta;                                                                         //保存前一次角度偏差
+}
+/***********************************************************
+ * @brief 角度控制输出
+ * @param
+ * @return
+***********************************************************/
+void AngleControl()
+{
+	AngleControlCal();
 }
 /***********************************************************
  * @brief 获取电机速度以及更新运行距离（包含堵转检测），速度对应：160 -> 3m/s
@@ -121,7 +158,7 @@ void GetMotorSpeed(void)
     CarInfo.RunDistance += (CarPulse.L1 + CarPulse.R1) / 2; //更新小车运行距离
     CarInfo.RealSpeed = (f_LeftSpeed + f_RightSpeed) * 0.5;   //计算小车速度
     /**********堵转检测***********/
-    if (CarInfo.IsRun == 'T' && (CarInfo.SpeedSet > 100 || CarInfo.SpeedSet < -100))
+    if (CarInfo.IsRun == 'T' && (CarInfo.SpeedSet_z > 100 || CarInfo.SpeedSet_z < -100))
     {
         if (f_LeftSpeed <= 3 && f_LeftSpeed >= -3)
         {
@@ -190,6 +227,20 @@ static inline float ChangeI(float delta)
     }
 }
 /***********************************************************
+ * @brief 速度控制解算
+ * @param
+ * @return
+***********************************************************/
+void Speedmath(float x, float y, float z)
+{
+	if(z>100) z= 100;
+   else if(z < -100) z = -100;   // 对转向速度限幅
+	SpeedSet_L1=x+y-z*19.5;
+	SpeedSet_R1=x-y+z*19.5;
+	SpeedSet_L2=x-y-z*19.5;
+	SpeedSet_R2=x+y+z*19.5;
+}
+/***********************************************************
  * @brief 速度控制计算，增量式，pid控制，变积分
  * @param
  * @return
@@ -198,15 +249,15 @@ static inline void SpeedControlCal(void)
 {
     float SpeedDelta; //速度偏差
     /**************左前轮控制计算*************/
-    SpeedDelta = CarInfo.SpeedSet - f_LeftSpeed; //计算偏差量
-//    if (CarInfo.IsMotorDiffrientialOn == 'T')
-//    SpeedDelta += MotorDifferential * (MotorDifferential >= 0 ? AdjustablePars.par_8 : 1);
+    SpeedDelta = SpeedSet_L1 - f_LeftSpeed; //计算偏差量
+    //if (CarInfo.IsMotorDiffrientialOn == 'T')
+    //SpeedDelta += MotorDifferential * (MotorDifferential >= 0 ? AdjustablePars.par_8 : 1);
     f_LeftSpeedControlBais = SpeedControlPid.P * (SpeedDelta - f_LeftSpeedDeltaPrev); //增量式PID控制
     if (SpeedControlPid.I != 0)
     {
         if (SystemSettings.ChangeIEnable == 'T')
         {
-            f_LeftSpeedControlBais += ChangeI(DetAbs((CarInfo.SpeedSet + MotorDifferential), f_LeftSpeed)) * SpeedControlPid.I * SpeedDelta;
+            f_LeftSpeedControlBais += ChangeI(DetAbs((SpeedSet_L1 + MotorDifferential), f_LeftSpeed)) * SpeedControlPid.I * SpeedDelta;
         }
         else
         {
@@ -221,7 +272,7 @@ static inline void SpeedControlCal(void)
     f_LeftSpeedDeltaPrev = SpeedDelta;             //更新为上次偏差                                                                      //保存上一次偏差
     f_LeftSpeedControlOut += f_LeftSpeedControlBais;
 		    /**************左后轮控制计算*************/
-    SpeedDelta = CarInfo.SpeedSet - r_LeftSpeed; //计算偏差量
+    SpeedDelta = SpeedSet_L2 - r_LeftSpeed; //计算偏差量
 //    if (CarInfo.IsMotorDiffrientialOn == 'T')
 //    SpeedDelta += MotorDifferential * (MotorDifferential >= 0 ? AdjustablePars.par_8 : 1);
     r_LeftSpeedControlBais = SpeedControlPid.P * (SpeedDelta - r_LeftSpeedDeltaPrev); //增量式PID控制
@@ -229,7 +280,7 @@ static inline void SpeedControlCal(void)
     {
         if (SystemSettings.ChangeIEnable == 'T')
         {
-            r_LeftSpeedControlBais += ChangeI(DetAbs((CarInfo.SpeedSet + MotorDifferential), r_LeftSpeed)) * SpeedControlPid.I * SpeedDelta;
+            r_LeftSpeedControlBais += ChangeI(DetAbs((SpeedSet_L2 + MotorDifferential), r_LeftSpeed)) * SpeedControlPid.I * SpeedDelta;
         }
         else
         {
@@ -244,7 +295,7 @@ static inline void SpeedControlCal(void)
     r_LeftSpeedDeltaPrev = SpeedDelta;             //更新为上次偏差                                                                      //保存上一次偏差
     r_LeftSpeedControlOut += r_LeftSpeedControlBais;//增量输出
     /**************右前轮控制计算*************/
-    SpeedDelta = CarInfo.SpeedSet - f_RightSpeed; //计算偏差量
+    SpeedDelta = SpeedSet_R1 - f_RightSpeed; //计算偏差量
    // if (CarInfo.IsMotorDiffrientialOn == 'T')
      //   SpeedDelta -= MotorDifferential * (MotorDifferential < 0 ? AdjustablePars.par_8 : 1);
     f_RightSpeedControlBais = SpeedControlPid.P * (SpeedDelta - f_RightSpeedDeltaPrev); //增量式PID控制
@@ -252,7 +303,7 @@ static inline void SpeedControlCal(void)
     {
         if (SystemSettings.ChangeIEnable == 'T')
         {
-            f_RightSpeedControlBais += ChangeI(DetAbs((CarInfo.SpeedSet - MotorDifferential), f_RightSpeed)) * SpeedControlPid.I * SpeedDelta;
+            f_RightSpeedControlBais += ChangeI(DetAbs((SpeedSet_R1 - MotorDifferential), f_RightSpeed)) * SpeedControlPid.I * SpeedDelta;
         }
         else
         {
@@ -264,10 +315,10 @@ static inline void SpeedControlCal(void)
         f_RightSpeedControlBais += SpeedControlPid.D * (SpeedDelta + f_RightSpeedDeltaPrevPrev - 2 * f_RightSpeedDeltaPrev);
     }
     f_RightSpeedDeltaPrevPrev = f_RightSpeedDeltaPrev; //更新为上上次偏差
-    f_RightSpeedDeltaPrev = SpeedDelta;              //更新为上次偏差                                                                     //±￡′?é?ò?′???2?
+    f_RightSpeedDeltaPrev = SpeedDelta;              //更新为上次偏差                                                                     
     f_RightSpeedControlOut += f_RightSpeedControlBais; //增量输出
  /**************右后轮控制计算*************/
-    SpeedDelta = CarInfo.SpeedSet - r_RightSpeed; //计算偏差量
+    SpeedDelta = SpeedSet_R2 - r_RightSpeed; //计算偏差量
    // if (CarInfo.IsMotorDiffrientialOn == 'T')
      //   SpeedDelta -= MotorDifferential * (MotorDifferential < 0 ? AdjustablePars.par_8 : 1);
     r_RightSpeedControlBais = SpeedControlPid.P * (SpeedDelta - r_RightSpeedDeltaPrev); //增量式PID控制
@@ -275,7 +326,7 @@ static inline void SpeedControlCal(void)
     {
         if (SystemSettings.ChangeIEnable == 'T')
         {
-            r_RightSpeedControlBais += ChangeI(DetAbs((CarInfo.SpeedSet - MotorDifferential), r_RightSpeed)) * SpeedControlPid.I * SpeedDelta;
+            r_RightSpeedControlBais += ChangeI(DetAbs((SpeedSet_R2 - MotorDifferential), r_RightSpeed)) * SpeedControlPid.I * SpeedDelta;
         }
         else
         {
@@ -291,14 +342,15 @@ static inline void SpeedControlCal(void)
     r_RightSpeedControlOut += r_RightSpeedControlBais; //增量输出
 }
 
+
 /***********************************************************
- * @brief 前轮电机控制量输出
+ * @brief 电机控制量输出
  * @param
  * @return
 ***********************************************************/
-static inline void f_MotorControlOut(void)
+static inline void MotorControlOut(void)
 {
-    if (f_LeftSpeedControlOut < -MOTOR_PWM_MAX) //增量式限幅
+    if (f_LeftSpeedControlOut < -MOTOR_PWM_MAX) //前轮限幅
     {
         f_LeftSpeedControlOut = -MOTOR_PWM_MAX;
     }
@@ -314,16 +366,7 @@ static inline void f_MotorControlOut(void)
     {
         f_RightSpeedControlOut = MOTOR_PWM_MAX;
     }
-    SetMotorPwmAndDir((int32)(f_LeftSpeedControlOut), (int32)(f_RightSpeedControlOut));
-}
-/***********************************************************
- * @brief 后轮电机控制量输出
- * @param
- * @return
-***********************************************************/
-static inline void r_MotorControlOut(void)
-{
-    if (r_LeftSpeedControlOut < -MOTOR_PWM_MAX) //增量式输出限幅
+		if (r_LeftSpeedControlOut < -MOTOR_PWM_MAX) //后轮限幅
     {
         r_LeftSpeedControlOut = -MOTOR_PWM_MAX;
     }
@@ -339,7 +382,7 @@ static inline void r_MotorControlOut(void)
     {
         r_RightSpeedControlOut = MOTOR_PWM_MAX;
     }
-    SetMotorPwmAndDir((int32)(r_LeftSpeedControlOut), (int32)(r_RightSpeedControlOut));
+motor_control((int32)(f_LeftSpeedControlOut), (int32)(f_RightSpeedControlOut), (int32)(r_LeftSpeedControlOut), (int32)(r_RightSpeedControlOut));
 }
 
 /***********************************************************
@@ -350,7 +393,8 @@ static inline void r_MotorControlOut(void)
 void SpeedControl(void)
 {
     GetMotorSpeed();
-    if (CarInfo.IsOutGarage == 'F' && CarInfo.IsAiOn == 'F' && 0 < CarInfo.RealSpeed && CarInfo.RealSpeed < 50 && CarInfo.SpeedSet > 100)
+	  Speedmath(CarInfo.SpeedSet_x,CarInfo.SpeedSet_y,CarInfo.SpeedSet_z);
+    if (CarInfo.IsOutGarage == 'F' && CarInfo.IsAiOn == 'F' && 0 < CarInfo.RealSpeed && CarInfo.RealSpeed < 50 && CarInfo.SpeedSet_z > 100)
     {
         f_LeftSpeedControlOut = f_RightSpeedControlOut = 15000;
 			  r_LeftSpeedControlOut = r_RightSpeedControlOut = 15000;
@@ -359,6 +403,30 @@ void SpeedControl(void)
     {
         SpeedControlCal();
     }
-    f_MotorControlOut();
-		r_MotorControlOut();
+    MotorControlOut();
+}/***********************************************************
+ * @brief 位置控制
+ * @param
+ * @return
+***********************************************************/
+void PositionControl(void)
+{
+//    float PositonDelta;                                       //位置偏差
+//    PositonDelta = CarInfo.PositionSet - CarInfo.RunDistance; //计算偏差量
+//    PositionDeviationIntegrate += PositonDelta;
+//    if (Prate = 100;       //100//200
+//    else if (PositionDeviationIntegrate < -100) //100//200
+//        PositionDeviationIntegrate = -100;      //100//2000
+//    PositionControlOut = PositionCositionDeviationIntegrate > 100)       //100//200
+//        PositionDeviationIntegontrolPid.P * PositonDelta + PositionControlPid.I * PositionDeviationIntegrate + PositionControlPid.D * (PositonDelta - PositionDeltaPrev);
+//    PositionDeltaPrev = PositonDelta;
+//    if (PositionControlOut > 80)
+//    {
+//        PositionControlOut = 80;
+//    }
+//    else if (PositionControlOut < -80)
+//    {
+//        PositionControlOut = -80;
+//    }
+//    CarInfo.SpeedSet = PositionControlOut;
 }

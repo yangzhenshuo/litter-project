@@ -41,7 +41,7 @@ void buzzer_thread_init(void)
     tid = rt_thread_create("buzzer",//线程名称 
 														buzzer_entry, //线程入口函数
 														RT_NULL, //线程入口参数
-														1024, //线程栈大小1024字节
+														512, //线程栈大小1024字节
 														20, //线程优先级
 														2);//线程时间片，同优先级线程起作用
     

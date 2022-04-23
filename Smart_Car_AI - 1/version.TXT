@@ -11,3 +11,6 @@ openart模块未处理
 2022 4 12 version1.2
 rtt系统的线程入口函数要在启动前给一个rt_thread_mdelay(10);来初始化finsh组件
 解决bug摄像头进程卡死
+
+2022 4 23 version1.3
+更新电机控制和系统设置
