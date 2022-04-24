@@ -122,4 +122,4 @@
   ..\..\Libraries\seekfree_peripheral\SEEKFREE_SCC8660.h ..\CODE\motor.h \
   ..\CODE\encoder.h ..\CODE\display.h ..\CODE\button.h \
   ..\CODE\timer_pit.h ..\CODE\buzzer.h ..\CODE\openart_mini.h \
-  ..\CODE\smotor.h ..\CODE\image.h
+  ..\CODE\smotor.h ..\CODE\image.h ..\CODE\TSP.h

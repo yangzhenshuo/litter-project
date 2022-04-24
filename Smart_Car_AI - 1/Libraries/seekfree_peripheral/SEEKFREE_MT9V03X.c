@@ -123,7 +123,7 @@ void mt9v03x_uart_callback(LPUART_Type *base, lpuart_handle_t *handle, status_t 
 //-------------------------------------------------------------------------------------------------------------------
 void set_config(UARTN_enum uartn, int16 buff[CONFIG_FINISH-1][2])
 {
-	uint16 temp, i;
+	  uint16 temp, i;
     uint8  send_buffer[4];
 
     uart_receive_flag = 0;

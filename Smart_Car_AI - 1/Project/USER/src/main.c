@@ -17,9 +17,7 @@
  * @date       		2019-04-30
  ********************************************************************************************************************/
 
-
 //整套推荐IO查看Projecct文件夹下的TXT文本
-
 
 //打开新的工程或者工程移动了位置务必执行以下操作
 //第一步 关闭上面所有打开的文件
@@ -31,7 +29,7 @@
 
 #include "System.h"
 #include "image.h"
-#include "display.h"
+#include "TSP.h"
 //#include "timer_pit.h"
 //#include "encoder.h"
 //#include "buzzer.h"
@@ -41,52 +39,38 @@
 //#include "smotor.h"
 
 rt_sem_t camera_sem;
-uint32 use_time;
-extern uint8 BinaryImage[IMAGE_H][IMAGE_W]; //存放二值图
-
 INIT_APP_EXPORT(software_init);
 INIT_APP_EXPORT(hardware_init);
 int main(void)
 {
-		DisableGlobalIRQ();
-		//创建摄像头信号量 
-	  camera_sem = rt_sem_create("camera", 0, RT_IPC_FLAG_FIFO);
-		//初始化pit定时器用来计时
-		pit_init();
-	  //CarInfoInit();
-	  //SystemSettingsInit();
-    EnableGlobalIRQ(0);
-    while (1)
-    {
-		    //等待摄像头采集完毕
-        rt_sem_take(camera_sem, RT_WAITING_FOREVER);
-        //开始处理摄像头图像
-				rt_kprintf("Start process\n");
+  //创建摄像头信号量
+  camera_sem = rt_sem_create("camera", 0, RT_IPC_FLAG_FIFO);
+	uint32 use_time;
+  //初始化pit定时器用来计时
+  pit_init();
+	//车信息初始化
+  CarInformation_init();
+	//全局中断使能
+  EnableGlobalIRQ(0);
+  while (1)
+  {
+    //等待摄像头采集完毕
+    rt_sem_take(camera_sem, RT_WAITING_FOREVER);
+    //开始处理摄像头图像
+    rt_kprintf("Start process\n");
 
-				pit_start(PIT_CH0);
-        BinaryImageConvert(1);
-				use_time = pit_get_ms(PIT_CH0);
-				pit_close(PIT_CH0);
-				//发送图片数据到上位机
-				//csi_seekfree_sendimg_03x(USART_1,BinaryImage[0],MT9V03X_CSI_W,MT9V03X_CSI_H);
-        //根据图像计算出车模与赛道之间的位置偏差
-        
-        
-        
-        //根据偏差进行PD计算
-        
-        
-        //PD计算之后的值用于寻迹舵机的控制
-			
-			
-			// 进入临界区 避免打印的时候被其他线程打断
-			rt_kprintf("main_end:%d\n",use_time);
-			
-			rt_thread_mdelay(100);
-    }
+    pit_start(PIT_CH0);
+    BinaryImageConvert(SystemSettings.BinaryMethod);
+    use_time = pit_get_ms(PIT_CH0);
+    pit_close(PIT_CH0);
+		
+    //根据图像计算出车模与赛道之间的位置偏差
+
+    //根据偏差进行PD计算
+
+    // PD计算之后的值用于寻迹舵机的控制
+
+    // 进入临界区 避免打印的时候被其他线程打断
+    rt_kprintf("main_end:%d\n", use_time);
+  }
 }
-
-  
-
-
-

@@ -1,6 +1,7 @@
 
 #include "buzzer.h"
 #include "button.h"
+#include "System.h"
 
 #define KEY_1   C31	// 定义主板上按键对应引脚
 #define KEY_2   C27	// 定义主板上按键对应引脚
@@ -45,23 +46,39 @@ void button_entry(void *parameter)
     if(key1_status && !key1_last_status)    
     {
         rt_sem_release(key1_sem);
-				Threshold2 += 2;
+			  if(SystemSettings.BinaryMethod<3 && SystemSettings.BinaryMethod>=0)
+				{
+					SystemSettings.BinaryMethod++;
+				}
+				else SystemSettings.BinaryMethod = 0;
         rt_mb_send(buzzer_mailbox, 100);
     }
     if(key2_status && !key2_last_status)    
     {
         rt_sem_release(key2_sem);
-				Threshold2 -= 2;
+				if(SystemSettings.BinaryMethod<=3 && SystemSettings.BinaryMethod>0)
+				{
+					SystemSettings.BinaryMethod--;
+				}
+				else SystemSettings.BinaryMethod = 0;
         rt_mb_send(buzzer_mailbox, 300);
     }
     if(key3_status && !key3_last_status)    
     {
         rt_sem_release(key3_sem);
+		    if(SystemSettings.BinaryMethod == 2)
+			  {
+				  Threshold2 += 10;
+			  }
         rt_mb_send(buzzer_mailbox, 600);
     }
     if(key4_status && !key4_last_status)    
     {
         rt_sem_release(key4_sem);
+			  if(SystemSettings.BinaryMethod == 2)
+			  {
+				  Threshold2 -= 10;
+			  }
         rt_mb_send(buzzer_mailbox, 1000);
     }
     

@@ -41,7 +41,7 @@ extern BoxDataTypedef BoxData;
 extern BoxTypedef Box;
 extern ImageStatusTypedef ImageStatus;
 
-void camera_DMA(void);
+void camera_thread_init(void);
 void BinaryImageConvert(uint8 type);
 void Found_dot_info(void);
 #endif

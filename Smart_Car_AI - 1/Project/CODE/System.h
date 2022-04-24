@@ -46,7 +46,6 @@ typedef struct
 typedef struct
 {
 	uint8 IsRun;                 //是否运行
-  uint8 IsOutGarage;           //是否出库
   uint8 IsCameraDetectRun;     //摄像头检测是否运作
   uint8 IsMotorStalled;        //电机是否堵转
   uint8 IsMotorDiffrientialOn; //电机差速是否开启
@@ -115,5 +114,6 @@ extern SystemSettingsTypedef SystemSettings;
 
 static inline void CarInfoInit(void);
 static inline void SystemSettingsInit(void);
+void CarInformation_init(void);
 
 #endif

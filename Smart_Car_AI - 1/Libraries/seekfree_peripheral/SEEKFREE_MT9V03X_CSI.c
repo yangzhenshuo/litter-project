@@ -126,9 +126,8 @@ void csi_mt9v03x_uart_callback(LPUART_Type *base, lpuart_handle_t *handle, statu
 
 
 uint8 mt9v03x_csi_finish_flag;  //图像采集完成的标志位    
-
-
 extern rt_sem_t camera_sem;
+
 void csi_isr(CSI_Type *base, csi_handle_t *handle, status_t status, void *userData)
 {
     if(csi_get_full_buffer(&csi_handle,&fullCameraBufferAddr))

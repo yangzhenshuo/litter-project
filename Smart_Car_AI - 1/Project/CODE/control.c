@@ -394,7 +394,7 @@ void SpeedControl(void)
 {
     GetMotorSpeed();
 	  Speedmath(CarInfo.SpeedSet_x,CarInfo.SpeedSet_y,CarInfo.SpeedSet_z);
-    if (CarInfo.IsOutGarage == 'F' && CarInfo.IsAiOn == 'F' && 0 < CarInfo.RealSpeed && CarInfo.RealSpeed < 50 && CarInfo.SpeedSet_z > 100)
+    if (CarInfo.IsAiOn == 'F' && 0 < CarInfo.RealSpeed && CarInfo.RealSpeed < 50 && CarInfo.SpeedSet_z > 100)
     {
         f_LeftSpeedControlOut = f_RightSpeedControlOut = 15000;
 			  r_LeftSpeedControlOut = r_RightSpeedControlOut = 15000;

@@ -141,6 +141,7 @@
 ".\objects\control.o"
 ".\objects\projectmath.o"
 ".\objects\image.o"
+".\objects\tsp.o"
 ".\objects\fsl_assert.o"
 ".\objects\fsl_debug_console.o"
 ".\objects\fsl_str.o"

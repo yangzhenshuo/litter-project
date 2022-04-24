@@ -1928,6 +1928,16 @@
               <FileType>1</FileType>
               <FilePath>..\CODE\image.c</FilePath>
             </File>
+            <File>
+              <FileName>TSP.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\CODE\TSP.h</FilePath>
+            </File>
+            <File>
+              <FileName>TSP.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\CODE\TSP.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -4247,6 +4257,16 @@
               <FileName>image.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\CODE\image.c</FilePath>
+            </File>
+            <File>
+              <FileName>TSP.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\CODE\TSP.h</FilePath>
+            </File>
+            <File>
+              <FileName>TSP.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\CODE\TSP.c</FilePath>
             </File>
           </Files>
         </Group>

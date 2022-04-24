@@ -14,6 +14,7 @@
 #include "openart_mini.h"
 #include "smotor.h"
 #include "image.h"
+#include "TSP.h"
 
 SystemSettingsTypedef SystemSettings;//系统信息
 CarInfoTypedef CarInfo;//小车信息
@@ -31,10 +32,9 @@ float dtt = 0.001;//积分时间
  * @param
  * @return
 ***********************************************************/
-static inline void CarInfoInit(void)
+ static inline void CarInfoInit(void)
 {
     CarInfo.IsRun = 'F';                 //是否运行
-    CarInfo.IsOutGarage = 'F';           //是否出库
     //CarInfo.IsCameraDetectRun = 'T';     //摄像头检测是否运作
     CarInfo.IsMotorStalled = 'F';        //电机是否堵转
     //CarInfo.IsMotorDiffrientialOn = 'T'; //电机差速是否开启
@@ -52,13 +52,16 @@ static inline void CarInfoInit(void)
 
     CarInfo.BinaryThreshold = 0; //二值化阈值
     CarInfo.RunDistance = 0;     //小车运行距离
+	
+	  //模拟点
+	  DotTypedef Dot[20] = {{1,1},{7,8},{18,22},{25,29},{13,34},{8,13},{21,10},{10,6},{1,6},{2,15},{10,10},{22,7},{25,3},{29,20}};
 }
 /***********************************************************
  * @brief 设置初始化
  * @param
  * @return
 ***********************************************************/
-static inline void SystemSettingsInit(void)
+ static inline void SystemSettingsInit(void)
 {
     SystemSettings.PostureReportEnable = 'F';     //是否启动姿态上报
     SystemSettings.ImageStatusReportEnable = 'F'; //是否启动图像处理模式上报
@@ -91,6 +94,16 @@ void gyro_offset_init(void)
    GyroOffset.x /= 100;
    GyroOffset.y /= 100;
    GyroOffset.z /= 100;
+}
+/***********************************************************
+ * @brief 车体信息初始化
+ * @param
+ * @return
+***********************************************************/
+void CarInformation_init(void)
+{
+	CarInfoInit();
+  SystemSettingsInit();
 }
 /***********************************************************
  * @brief 硬件设备初始化
@@ -126,7 +139,7 @@ int software_init(void)
 	display_thread_init();//显示线程初始化
 	button_init();//按键检测定时器初始化
 	//timer_pit_init();//定时器初始化
-	//camera_thread_init();
+	camera_thread_init();
 	return 0;
 }
 
