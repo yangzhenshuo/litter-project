@@ -10,77 +10,79 @@ void SystemStart(void);
 
 typedef struct
 {
-	float x;
-	float y;
-	float z;
-}GyroOffsetTypedef;//零点漂移
+  float x;
+  float y;
+  float z;
+} GyroOffsetTypedef; //零点漂移
 
 typedef struct
 {
-	float acc_x;
-	float acc_y;
-	float acc_z;
-	float gyro_x;
-	float gyro_y;
-	float gyro_z;
-}ICMTypedef;//ICM数据
+  float acc_x;
+  float acc_y;
+  float acc_z;
+  float gyro_x;
+  float gyro_y;
+  float gyro_z;
+} ICMTypedef; // ICM数据
 
 typedef struct
 {
-	float x;
-	float y;
-}speedTypedef;//加速度计得出的速度
+  float x;
+  float y;
+} speedTypedef; //加速度计得出的速度
 
 typedef struct
 {
-	float x;
-	float y;
-}positionTypedef;//当前实时位置
+  float x;
+  float y;
+} positionTypedef; //当前实时位置
 
 typedef struct
 {
-	int x;
-	int y;
-}coordinateTypedef;//位置坐标化
+  int x;
+  int y;
+} coordinateTypedef; //位置坐标化
 
 typedef struct
 {
-	uint8 IsRun;                 //是否运行
+  uint8 IsRun;                 //是否运行
   uint8 IsCameraDetectRun;     //摄像头检测是否运作
   uint8 IsMotorStalled;        //电机是否堵转
   uint8 IsMotorDiffrientialOn; //电机差速是否开启
 
-  uint8 IsAiOn;      //识别模式是否打开
+  uint8 IsAiOn; //识别模式是否打开
 
-  float SpeedSet_x;  //x轴速度设置
-	float SpeedSet_y;  //y轴速度设置
-	float SpeedSet_z;  //z轴速度设置
-  float RealSpeed; //真实速度
-  float AngleSet;  //角度设置
-	float pitch;//俯仰角
-	float roll;//横滚角
-	float yaw;//航向角
+  float SpeedSet_x; // x轴速度设置
+  float SpeedSet_y; // y轴速度设置
+  float SpeedSet_z; // z轴速度设置
+  float RealSpeed;  //真实速度
+  float AngleSet;   //角度设置
+  float pitch;      //俯仰角
+  float roll;       //横滚角
+  float yaw;        //航向角
+
+  double current_angle; //当前图片角度
 
   int32 PositionSet; //位置设置
 
   uint8 BinaryThreshold; //二值化阈值
   int32 RunDistance;     //小车运行距离
-}CarInfoTypedef;
+} CarInfoTypedef;
 
 typedef struct
 {
-	int16 L1;//前左轮的编码器值
-	int16 L2;//后左轮的编码器值
-	int16 R1;//前右轮的编码器值
-	int16 R2;//后右轮的编码器值
-}CarPulseTypedef;
+  int16 L1; //前左轮的编码器值
+  int16 L2; //后左轮的编码器值
+  int16 R1; //前右轮的编码器值
+  int16 R2; //后右轮的编码器值
+} CarPulseTypedef;
 
 typedef struct
 {
-	float P;
-	float I;
-	float D;
-}ControlPidTypedef;
+  float P;
+  float I;
+  float D;
+} ControlPidTypedef;
 
 typedef struct
 {

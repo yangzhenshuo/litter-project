@@ -2,13 +2,14 @@
 #include "buzzer.h"
 #include "button.h"
 #include "System.h"
+#include "image.h"
 
 #define KEY_1   C31	// 定义主板上按键对应引脚
 #define KEY_2   C27	// 定义主板上按键对应引脚
 #define KEY_3   C26	// 定义主板上按键对应引脚
 #define KEY_4   C4	// 定义主板上按键对应引脚
 
-extern float Threshold2;
+extern float Threshold;
 //开关状态变量
 uint8 key1_status = 1;
 uint8 key2_status = 1;
@@ -49,8 +50,13 @@ void button_entry(void *parameter)
 			  if(SystemSettings.BinaryMethod<3 && SystemSettings.BinaryMethod>=0)
 				{
 					SystemSettings.BinaryMethod++;
+					Binary_threshold(SystemSettings.BinaryMethod);
 				}
-				else SystemSettings.BinaryMethod = 0;
+				else 
+				{
+					SystemSettings.BinaryMethod = 0;
+					Binary_threshold(SystemSettings.BinaryMethod);
+				}
         rt_mb_send(buzzer_mailbox, 100);
     }
     if(key2_status && !key2_last_status)    
@@ -59,8 +65,13 @@ void button_entry(void *parameter)
 				if(SystemSettings.BinaryMethod<=3 && SystemSettings.BinaryMethod>0)
 				{
 					SystemSettings.BinaryMethod--;
+					Binary_threshold(SystemSettings.BinaryMethod);
 				}
-				else SystemSettings.BinaryMethod = 0;
+				else 
+				{
+					SystemSettings.BinaryMethod = 0;
+					Binary_threshold(SystemSettings.BinaryMethod);
+				}
         rt_mb_send(buzzer_mailbox, 300);
     }
     if(key3_status && !key3_last_status)    
@@ -68,7 +79,7 @@ void button_entry(void *parameter)
         rt_sem_release(key3_sem);
 		    if(SystemSettings.BinaryMethod == 2)
 			  {
-				  Threshold2 += 10;
+				  CarInfo.BinaryThreshold += 10;
 			  }
         rt_mb_send(buzzer_mailbox, 600);
     }
@@ -77,7 +88,7 @@ void button_entry(void *parameter)
         rt_sem_release(key4_sem);
 			  if(SystemSettings.BinaryMethod == 2)
 			  {
-				  Threshold2 -= 10;
+				  CarInfo.BinaryThreshold -= 10;
 			  }
         rt_mb_send(buzzer_mailbox, 1000);
     }

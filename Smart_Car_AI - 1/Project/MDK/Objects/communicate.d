@@ -1,4 +1,4 @@
-./objects/button.o: ..\CODE\button.c ..\CODE\buzzer.h \
+./objects/communicate.o: ..\CODE\communicate.c ..\CODE\System.h \
   ..\..\Libraries\seekfree_libraries\headfile.h \
   E:\Keil\ MDK\Keil\ uvision5\ MDK\ARM\ARMCLANG\Bin\..\include\stdint.h \
   ..\..\Libraries\nxp_libraries\drives\fsl_common.h \
@@ -120,4 +120,5 @@
   ..\..\Libraries\seekfree_peripheral\SEEKFREE_W25QXXJV.h \
   ..\..\Libraries\seekfree_peripheral\SEEKFREE_SCC8660_CSI.h \
   ..\..\Libraries\seekfree_peripheral\SEEKFREE_SCC8660.h \
-  ..\CODE\button.h ..\CODE\System.h ..\CODE\image.h
+  ..\CODE\Communicate.h \
+  E:\Keil\ MDK\Keil\ uvision5\ MDK\ARM\ARMCLANG\Bin\..\include\stdio.h

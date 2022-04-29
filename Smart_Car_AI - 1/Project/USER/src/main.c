@@ -30,6 +30,7 @@
 #include "System.h"
 #include "image.h"
 #include "TSP.h"
+#include "communicate.h"
 //#include "timer_pit.h"
 //#include "encoder.h"
 //#include "buzzer.h"
@@ -45,12 +46,12 @@ int main(void)
 {
   //创建摄像头信号量
   camera_sem = rt_sem_create("camera", 0, RT_IPC_FLAG_FIFO);
-	uint32 use_time;
+  uint32 use_time;
   //初始化pit定时器用来计时
   pit_init();
-	//车信息初始化
+  //车信息初始化
   CarInformation_init();
-	//全局中断使能
+  //全局中断使能
   EnableGlobalIRQ(0);
   while (1)
   {
@@ -58,12 +59,12 @@ int main(void)
     rt_sem_take(camera_sem, RT_WAITING_FOREVER);
     //开始处理摄像头图像
     rt_kprintf("Start process\n");
-
     pit_start(PIT_CH0);
-    BinaryImageConvert(SystemSettings.BinaryMethod);
+    Binary_image();
+		ReportImageStatus();
     use_time = pit_get_ms(PIT_CH0);
     pit_close(PIT_CH0);
-		
+
     //根据图像计算出车模与赛道之间的位置偏差
 
     //根据偏差进行PD计算
@@ -72,5 +73,6 @@ int main(void)
 
     // 进入临界区 避免打印的时候被其他线程打断
     rt_kprintf("main_end:%d\n", use_time);
+	  rt_thread_mdelay(10);
   }
 }

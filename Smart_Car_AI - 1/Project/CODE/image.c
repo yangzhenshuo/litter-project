@@ -1,9 +1,10 @@
 /*
  * Image.c
  * 图像处理与识别检测
- * Author:杨镇硕、张赛尧
+ * Author:杨镇硕
  */
 #include "image.h"
+#include "math.h"
 #include "System.h"
 #include "ProjectMath.h"
 #include "SEEKFREE_MT9V03X_CSI.h"
@@ -18,47 +19,48 @@ BoxDataTypedef BoxData;         //方框信息
 ImageStatusTypedef ImageStatus; //图像状态信息
 BoxTypedef Box;                 //方框的长宽
 DotTypedef Dot[20];             //存放点的x，y坐标
-uint16 Num = 0;                      //目标点的数量
+uint16 Num = 0;                 //目标点的数量
 
-/***********************************************************
- * @brief 摄像头线程的入口函数
- * @param
- * @return
- ***********************************************************/
- void camera_entry()
-{
-	rt_thread_mdelay(10);										// 延时等待finsh初始化完毕
-	while(1)
-	{
-		if(mt9v03x_csi_finish_flag)
-     {
-			 //发送图片数据到上位机
-       csi_seekfree_sendimg_03x(USART_1,BinaryImage[0],MT9V03X_CSI_W,MT9V03X_CSI_H);
-			 mt9v03x_csi_finish_flag = 0;
-		}
-	}
- }
-/***********************************************************
- * @brief 摄像头图线显示线程初始化
- * @param
- * @return
- ***********************************************************/
- void camera_thread_init()
-{
-	rt_thread_t camera;
-	camera = rt_thread_create("camera",//线程名称
-														camera_entry, //线程入口函数
-														RT_NULL, //线程入口参数
-														1024, //线程栈大小1024字节
-														31, //线程优先级
-														30);//线程时间片，同优先级线程起作用
+///***********************************************************
+// * @brief 摄像头线程的入口函数
+// * @param
+// * @return
+// ***********************************************************/
+// void camera_entry()
+//{
+//  rt_thread_mdelay(10); // 延时等待finsh初始化完毕
+//  while (1)
+//  {
+//    if (mt9v03x_csi_finish_flag)
+//    {
+//      //发送图片数据到上位机
+//      csi_seekfree_sendimg_03x(USART_1, BinaryImage[0], MT9V03X_CSI_W, MT9V03X_CSI_H);
+//			//seekfree_wireless_send_buff(BinaryImage[0],sizeof(BinaryImage[0])-1);
+//      mt9v03x_csi_finish_flag = 0;
+//    }
+//  }
+//}
+///***********************************************************
+// * @brief 摄像头图线显示线程初始化
+// * @param
+// * @return
+// ***********************************************************/
+// void camera_thread_init()
+//{
+//  rt_thread_t camera;
+//  camera = rt_thread_create("camera",     //线程名称
+//                            camera_entry, //线程入口函数
+//                            RT_NULL,      //线程入口参数
+//                            1024,         //线程栈大小1024字节
+//                            31,           //线程优先级
+//                            30);          //线程时间片，同优先级线程起作用
 
-     //启动线程
-     if(RT_NULL != camera)
-     {
-         rt_thread_startup(camera);
-     }
- }
+//  //启动线程
+//  if (RT_NULL != camera)
+//  {
+//    rt_thread_startup(camera);
+//  }
+//}
 /***********************************************************
  * @brief 大津算法
  * @param image 图像地址
@@ -69,11 +71,12 @@ uint16 Num = 0;                      //目标点的数量
 static inline uint8 OtsuThreshold(uint8 *image, uint16 col, uint16 row)
 {
 #define GrayScale 256
+#define StartGray 90
   uint16 width = col;
   uint16 height = row;
   int pixelCount[GrayScale]; //每个灰度级的像素个数
   float pixelPro[GrayScale]; //每个灰度级的像素概率
-  int16 i, j, pixelSum = width * height / 4;
+  int16 i, j, pixelSum = width * height;
   uint8 threshold = 0;
   uint8 *data = image; //指向像素数据的指针
   for (i = 0; i < GrayScale; i++)
@@ -102,29 +105,24 @@ static inline uint8 OtsuThreshold(uint8 *image, uint16 col, uint16 row)
   }
 
   //遍历灰度级[0,255]
-  float w0, w1, u0tmp, u1tmp, u0, u1, u, deltaTmp, deltaMax = 0;
-  w0 = w1 = u0tmp = u1tmp = u0 = u1 = u = deltaTmp = 0;
-  for (j = 0; j < GrayScale / 2; j++)
+  float w0, w1, u0tmp, u1tmp, u0, u1, deltaTmp, deltaMax = 0;
+  w1 = u1tmp = 0;
+  for (i = GrayScale - 1; i >= StartGray; i--) // i作为阈值，从后往前算前景
   {
     w0 += pixelPro[i];        //背景部分每个灰度值的像素点所占比列之和，即背景部分的比例
-    u0tmp += j * pixelPro[i]; //背景部分，每个灰度值点的比例*灰度值
+    u0tmp += i * pixelPro[i]; //背景部分，每个灰度值点的比例*灰度值
 
     w1 = 1 - w0; //背景
-    u1tmp = graySum / pixelSum - u0tmp;
+    u1tmp = grayEverage - u1tmp;
 
-    u0 = u0tmp / w0;                                          //背景平均灰度
-    u1 = u1tmp / w1;                                          //前景平均灰度
-    u = u0tmp + u1tmp;                                        //全局平均灰度
-    deltaTmp = w0 * pow((u0 - u), 2) + w1 * pow((u1 - u), 2); //计算方差
+    u0 = u0tmp / w0; //背景平均灰度
+    u1 = u1tmp / w1; //前景平均灰度
+
+    deltaTmp = w0 * w1 * pow((u0 - u1), 2); //计算方差
     if (deltaTmp > deltaMax)
     {
       deltaMax = deltaTmp;
-      threshold = j;
-    }
-    if (deltaTmp < deltaMax)
-    {
-      threshold += 0;
-      break;
+      threshold = i;
     }
   }
   return threshold;
@@ -139,17 +137,17 @@ static inline uint8 OtsuThreshold(uint8 *image, uint16 col, uint16 row)
 #define Thres 128 //阈值
 #define ERROR 2   //误差
 
-int16 EdgeThres = 18;  //晚上20  白天25 18
-float Threshold0 = 0;  //大津法阈值
-float Threshold1 = 58; //黑白迭代阈值
-float Threshold2 = 60; //固定阈值
+int16 EdgeThres = 18; //晚上20  白天25 18
 
-void Iteration_Threshould(uint8 *image, uint16 col_w, uint16 row_h)
+float Iteration_Threshould(uint8 *image, uint16 col_w, uint16 row_h)
 {
   uint16_t i = 0, j = 0, N0 = 0, N1 = 0, flag = 0;
   float T0, T1, T2, T_center;
   uint32_t S0 = 0, S1 = 0;
-  T2 = Threshold1;     //初始预估值
+  //初始预估值
+  float threshold = 70.0;
+  T2 = threshold;
+
   uint8 *data = image; //指向像素数据的指针
   do
   {
@@ -196,8 +194,9 @@ void Iteration_Threshould(uint8 *image, uint16 col_w, uint16 row_h)
       }
     }
     T2 = T_center;
-    Threshold1 = T2;
+    threshold = T2;
   } while (flag);
+  return threshold;
 }
 /***********************************************************
  * @brief 图像直方图均衡化（效果不佳）
@@ -240,37 +239,56 @@ void HistEqImageConvert(uint8 *RawImagePtr, uint8 *HistEqImagePtr)
   }
 }
 /***********************************************************
- * @brief 图像二值化转换
- * @param type 0:大津法；1：迭代法；2：固定可调阈值;3:直方图均衡加大津
+ * @brief 求取二值化阈值
+ * @param type 0:大津法；1：迭代法；2：阳光算法;3:直方图均衡加大津
  * @return
  ***********************************************************/
-void BinaryImageConvert(uint8 type)
+void Binary_threshold(uint8 type)
 {
-  uint8 Threshold;
   if (type == 0)
   {
-
-    Threshold0 = OtsuThreshold(mt9v03x_csi_image[0], IMAGE_W, IMAGE_H);
-    Threshold = Threshold0;
+    CarInfo.BinaryThreshold = OtsuThreshold(mt9v03x_csi_image[0], IMAGE_W, IMAGE_H);
   }
   if (type == 1)
   {
-    Iteration_Threshould(mt9v03x_csi_image[0], IMAGE_W, IMAGE_H);
-    Threshold = Threshold1;
+    CarInfo.BinaryThreshold = Iteration_Threshould(mt9v03x_csi_image[0], IMAGE_W, IMAGE_H);
   }
   if (type == 2)
-    Threshold = Threshold2;
+  {
+    uint8 ImageThreshold1 = OtsuThreshold(mt9v03x_csi_image[0], IMAGE_W, IMAGE_H); //计算第一次阈值
+    for (int i = 0; i < IMAGE_H; i++)
+      for (int j = 0; j < IMAGE_W; j++)
+      {
+        if (mt9v03x_csi_image[i][j] > ImageThreshold1)
+        {
+          BinaryImage[i][j] = mt9v03x_csi_image[i][j];
+        }
+        else
+        {
+          BinaryImage[i][j] = ImageThreshold1 - 10;
+        }
+      }
+    uint8 ImageThreshold2 = OtsuThreshold(BinaryImage[0], IMAGE_W, IMAGE_H); //计算第二次阈值
+    CarInfo.BinaryThreshold = ImageThreshold2;
+  }
   if (type == 3)
   {
     uint8 *HistImagePtr = hist_eq_image[0];
     HistEqImageConvert(mt9v03x_csi_image[0], HistImagePtr);
-    Threshold0 = OtsuThreshold(HistImagePtr, IMAGE_W, IMAGE_H);
-    Threshold = Threshold0;
+    CarInfo.BinaryThreshold = OtsuThreshold(HistImagePtr, IMAGE_W, IMAGE_H);
   }
+}
+/***********************************************************
+ * @brief 二值化图像
+ * @param
+ * @return
+ ***********************************************************/
+void Binary_image(void)
+{
   for (int i = 0; i < IMAGE_H; i++)
     for (int j = 0; j < IMAGE_W; j++)
     {
-      if (mt9v03x_csi_image[i][j] > Threshold)
+      if (mt9v03x_csi_image[i][j] > CarInfo.BinaryThreshold)
       {
         BinaryImage[i][j] = White;
       }
@@ -279,9 +297,7 @@ void BinaryImageConvert(uint8 type)
         BinaryImage[i][j] = Black;
       }
     }
-	CarInfo.BinaryThreshold = Threshold;
 }
-
 /***********************************************************
  * @brief 描方框四边的线;寻找矩形左下点和右上点来求框的四点坐标
  * @return
@@ -377,4 +393,79 @@ void Found_dot_info()
     Dot[i].x = (int)(Dot[i].x - BoxData.LeftBorder) * k1 / 20;
     Dot[i].y = (int)(BoxData.HighBorder - Dot[i].y) * k0 / 20;
   }
+}
+/*************************************************************
+ * @brief 计算当前车与图片存在的角度
+ *
+ * @return 带回最小角度
+ *************************************************************/
+uint8 angle_dot[2];        //顶角信息
+uint8 Left_border[20][2];  //左边信息
+uint8 Right_border[20][2]; //右边信息
+double Computing_angle()
+{
+  int i, j;
+  int Flag1 = 0;      //找到顶点标志
+  double left_angle;  //左边夹角
+  double right_angle; //右边夹角
+  uint8 *row_pic;     //保存单行图片
+  for (j = 119; j < 0; j--)
+  {
+    row_pic = BinaryImage[j];
+    for (i = 0; i < 187; i++)
+    {
+      if (*(row_pic + i) == White && *(row_pic + i - 1) == Black && *(row_pic + i + 1) == Black) //找到顶点(黑白黑)
+      {
+        angle_dot[0] = i; //顶点横坐标
+        angle_dot[1] = j; //顶点纵坐标
+        Flag1 = 1;
+        break;
+      }
+    }
+    if (Flag1 == 1)
+      break;
+  }
+  //找图像左边（从顶点向左）
+  int left_flag = 0;
+  for (j = angle_dot[1]; j > 0; j--)
+  {
+    row_pic = BinaryImage[j];
+    for (i = angle_dot[0]; i >= 0; i--)
+    {
+      if (*(row_pic + i) == White && *(row_pic + i - 1) == Black && *(row_pic + i - 2) == Black) //找到边界点(白黑黑)
+      {
+        Left_border[left_flag][0] = i; //横坐标
+        Left_border[left_flag][1] = j;
+        left_flag++;
+        break;
+      }
+    }
+    if (left_flag > 20)
+      break;
+  }
+  //找图像右边（从顶点向右）
+  int right_flag = 0;
+  for (j = angle_dot[1]; j > 0; j--)
+  {
+    row_pic = BinaryImage[j];
+    for (i = angle_dot[0]; i < 188; i++)
+    {
+      if (*(row_pic + i) == White && *(row_pic + i + 1) == Black && *(row_pic + i + 2) == Black) //找到边界点(白黑黑)
+      {
+        Right_border[right_flag][0] = i; //横坐标
+        Right_border[right_flag][1] = j;
+        right_flag++;
+        break;
+      }
+    }
+    if (right_flag > 20)
+      break;
+  }
+  //计算左右两边的角度大小
+  left_angle = atan2(angle_dot[1] - Left_border[10][1], angle_dot[0] - Left_border[10][0]);
+  right_angle = atan2(angle_dot[1] - Right_border[10][1], Right_border[10][0] - angle_dot[0]);
+  if (left_angle > right_angle)
+    return right_angle;
+  else
+    return left_angle;
 }

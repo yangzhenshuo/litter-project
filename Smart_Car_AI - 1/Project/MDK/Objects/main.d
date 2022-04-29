@@ -120,4 +120,4 @@
   ..\..\Libraries\seekfree_peripheral\SEEKFREE_W25QXXJV.h \
   ..\..\Libraries\seekfree_peripheral\SEEKFREE_SCC8660_CSI.h \
   ..\..\Libraries\seekfree_peripheral\SEEKFREE_SCC8660.h \
-  ..\CODE\System.h ..\CODE\image.h ..\CODE\TSP.h
+  ..\CODE\System.h ..\CODE\image.h ..\CODE\TSP.h ..\CODE\communicate.h

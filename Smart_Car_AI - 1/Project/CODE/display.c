@@ -13,16 +13,18 @@ void display_entry(void *parameter)
 	  rt_thread_mdelay(10);										// 延时等待finsh初始化完毕
     while(1)
     {
-      ips114_showstr(0, 1,"Yaw:");
-      ips114_showint16(7, 1, CarInfo.yaw);
-			ips114_showstr(0, 2,"Xsite:");
-			ips114_showint16(7, 2, coordinate.x);
-			ips114_showstr(0, 3,"Ysite:");
-			ips114_showint16(7, 3, coordinate.y);
-			ips114_showstr(0, 4,"Method:");
-			ips114_showint16(7, 4, SystemSettings.BinaryMethod);
-			ips114_showstr(0, 5,"Threshold:");
-			ips114_showint16(7, 5, CarInfo.BinaryThreshold);
+//      ips114_showstr(0, 1,"Yaw:");
+//      ips114_showint16(7, 1, CarInfo.yaw);
+//			ips114_showstr(0, 2,"Xsite:");
+//			ips114_showint16(7, 2, coordinate.x);
+//			ips114_showstr(0, 3,"Ysite:");
+//			ips114_showint16(7, 3, coordinate.y);
+//			ips114_showstr(0, 4,"Method:");
+//			ips114_showint16(7, 4, SystemSettings.BinaryMethod);
+//			ips114_showstr(0, 5,"Threshold:");
+//			ips114_showint16(7, 5, CarInfo.BinaryThreshold);
+				ips114_displayimage032_zoom(BinaryImage[0], MT9V03X_CSI_W, MT9V03X_CSI_H, 240, 135);	//显示摄像头图像 
+
     }
     
 }

@@ -142,6 +142,7 @@
 ".\objects\projectmath.o"
 ".\objects\image.o"
 ".\objects\tsp.o"
+".\objects\communicate.o"
 ".\objects\fsl_assert.o"
 ".\objects\fsl_debug_console.o"
 ".\objects\fsl_str.o"

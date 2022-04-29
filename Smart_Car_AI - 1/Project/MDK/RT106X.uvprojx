@@ -1938,6 +1938,16 @@
               <FileType>1</FileType>
               <FilePath>..\CODE\TSP.c</FilePath>
             </File>
+            <File>
+              <FileName>communicate.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\CODE\communicate.h</FilePath>
+            </File>
+            <File>
+              <FileName>communicate.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\CODE\communicate.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -4267,6 +4277,16 @@
               <FileName>TSP.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\CODE\TSP.c</FilePath>
+            </File>
+            <File>
+              <FileName>communicate.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\CODE\communicate.h</FilePath>
+            </File>
+            <File>
+              <FileName>communicate.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\CODE\communicate.c</FilePath>
             </File>
           </Files>
         </Group>
