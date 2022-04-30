@@ -121,4 +121,5 @@
   ..\..\Libraries\seekfree_peripheral\SEEKFREE_SCC8660_CSI.h \
   ..\..\Libraries\seekfree_peripheral\SEEKFREE_SCC8660.h \
   ..\CODE\Communicate.h \
-  E:\Keil\ MDK\Keil\ uvision5\ MDK\ARM\ARMCLANG\Bin\..\include\stdio.h
+  E:\Keil\ MDK\Keil\ uvision5\ MDK\ARM\ARMCLANG\Bin\..\include\stdio.h \
+  ..\CODE\image.h

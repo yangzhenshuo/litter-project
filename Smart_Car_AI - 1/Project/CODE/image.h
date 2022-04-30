@@ -42,11 +42,11 @@ extern BoxTypedef Box;
 extern ImageStatusTypedef ImageStatus;
 extern uint8 BinaryImage[IMAGE_H][IMAGE_W];   //存放二值图
 extern uint8 hist_eq_image[IMAGE_H][IMAGE_W]; //存放直方图均衡化图片
-
+extern uint8 angle_dot[2];
 
 void camera_thread_init(void);
 void Binary_threshold(uint8 type);
 void Found_dot_info(void);
 void Binary_image(void);
-double computing_angle(void);
+void Computing_angle(void);
 #endif

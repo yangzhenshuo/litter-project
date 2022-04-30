@@ -120,4 +120,5 @@
   ..\..\Libraries\seekfree_peripheral\SEEKFREE_W25QXXJV.h \
   ..\..\Libraries\seekfree_peripheral\SEEKFREE_SCC8660_CSI.h \
   ..\..\Libraries\seekfree_peripheral\SEEKFREE_SCC8660.h \
-  ..\CODE\encoder.h ..\CODE\projectmath.h ..\CODE\System.h
+  ..\CODE\encoder.h ..\CODE\projectmath.h ..\CODE\System.h \
+  ..\CODE\position.h

@@ -58,15 +58,16 @@ int main(void)
     //等待摄像头采集完毕
     rt_sem_take(camera_sem, RT_WAITING_FOREVER);
     //开始处理摄像头图像
-    rt_kprintf("Start process\n");
+    //rt_kprintf("Start process\n");
     pit_start(PIT_CH0);
     Binary_image();
-		ReportImageStatus();
+		
     use_time = pit_get_ms(PIT_CH0);
     pit_close(PIT_CH0);
 
-    //根据图像计算出车模与赛道之间的位置偏差
-
+    //根据图像计算出车模与图像之间的角度
+		Computing_angle(); 
+		ReportImageStatus();
     //根据偏差进行PD计算
 
     // PD计算之后的值用于寻迹舵机的控制

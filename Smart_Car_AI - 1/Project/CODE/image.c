@@ -7,6 +7,7 @@
 #include "math.h"
 #include "System.h"
 #include "ProjectMath.h"
+#include "communicate.h"
 #include "SEEKFREE_MT9V03X_CSI.h"
 
 uint8 BinaryImage[IMAGE_H][IMAGE_W];   //存放二值图
@@ -402,28 +403,39 @@ void Found_dot_info()
 uint8 angle_dot[2];        //顶角信息
 uint8 Left_border[20][2];  //左边信息
 uint8 Right_border[20][2]; //右边信息
-double Computing_angle()
+
+uint8 test1[] = "start find dot\n";
+uint8 test2[] = "find dot\n";
+
+void Computing_angle()
 {
   int i, j;
   int Flag1 = 0;      //找到顶点标志
   double left_angle;  //左边夹角
   double right_angle; //右边夹角
   uint8 *row_pic;     //保存单行图片
-  for (j = 119; j < 0; j--)
+	
+  for (j = 119; j > 0; j--)
   {
+		
     row_pic = BinaryImage[j];
-    for (i = 0; i < 187; i++)
+    for (i = 1; i < 187; i++)
     {
-      if (*(row_pic + i) == White && *(row_pic + i - 1) == Black && *(row_pic + i + 1) == Black) //找到顶点(黑白黑)
+//			seekfree_wireless_send_buff(test1,sizeof(test1)-1);
+      if (*(row_pic + i) == White && *(row_pic + i - 1) == Black ) //找到顶点(黑白)
       {
         angle_dot[0] = i; //顶点横坐标
         angle_dot[1] = j; //顶点纵坐标
         Flag1 = 1;
+			  seekfree_wireless_send_buff(test2,sizeof(test2)-1);
         break;
       }
     }
     if (Flag1 == 1)
+		{
+			ReportDot();
       break;
+		}
   }
   //找图像左边（从顶点向左）
   int left_flag = 0;
@@ -465,7 +477,7 @@ double Computing_angle()
   left_angle = atan2(angle_dot[1] - Left_border[10][1], angle_dot[0] - Left_border[10][0]);
   right_angle = atan2(angle_dot[1] - Right_border[10][1], Right_border[10][0] - angle_dot[0]);
   if (left_angle > right_angle)
-    return right_angle;
+    CarInfo.current_angle = right_angle;
   else
-    return left_angle;
+    CarInfo.current_angle = left_angle;
 }

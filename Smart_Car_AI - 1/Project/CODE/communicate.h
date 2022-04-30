@@ -5,5 +5,6 @@
 
 //void ReportPosture(void);
 void ReportImageStatus(void);
+void ReportDot(void);
 
 #endif

@@ -52,14 +52,17 @@ typedef struct
 
   uint8 IsAiOn; //识别模式是否打开
 
-  float SpeedSet_x; // x轴速度设置
-  float SpeedSet_y; // y轴速度设置
-  float SpeedSet_z; // z轴速度设置
-  float RealSpeed;  //真实速度
-  float AngleSet;   //角度设置
-  float pitch;      //俯仰角
-  float roll;       //横滚角
-  float yaw;        //航向角
+  float SpeedSet_x;  //x轴速度设置
+	float SpeedSet_y;  //y轴速度设置
+	float SpeedSet_z;  //z轴速度设置
+	float SpeedSet;    //平面速度设置
+	float delet1;
+	float delet2;
+  float RealSpeed; //真实速度
+  float AngleSet;  //角度设置
+	float pitch;//俯仰角
+	float roll;//横滚角
+	float yaw;//航向角
 
   double current_angle; //当前图片角度
 
@@ -98,7 +101,6 @@ typedef struct
   uint8 BinaryMethod; //二值化方法
 
   uint16 ApriltagSearchSpeed; //搜索Apriltag速度
-  uint16 TargetSearchSpeed;   //搜索靶子速度
 
 } SystemSettingsTypedef;
 
@@ -112,6 +114,7 @@ extern CarInfoTypedef CarInfo;
 extern CarPulseTypedef CarPulse;
 extern ControlPidTypedef SpeedControlPid;
 extern ControlPidTypedef AngleControlPid;
+extern ControlPidTypedef PositionControlPid;
 extern SystemSettingsTypedef SystemSettings;
 
 static inline void CarInfoInit(void);
