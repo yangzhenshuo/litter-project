@@ -3,8 +3,7 @@
 
 #include "common.h"
 
-//void ReportPosture(void);
-void ReportImageStatus(void);
-void ReportDot(void);
+// void ReportPosture(void);
+void Report_info(void);
 
 #endif

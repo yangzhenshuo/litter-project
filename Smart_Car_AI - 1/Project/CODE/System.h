@@ -4,9 +4,14 @@
 #include "headfile.h"
 
 int hardware_init(void);
-int software_init(void);
+int thread_init(void);
+int timer_init(void);
 
+static inline void CarInfoInit(void);
+static inline void SystemSettingsInit(void);
+void CarInformation_init(void);
 void SystemStart(void);
+void System_stop(void);
 
 typedef struct
 {
@@ -45,28 +50,25 @@ typedef struct
 
 typedef struct
 {
-  uint8 IsRun;                 //是否运行
-  uint8 IsCameraDetectRun;     //摄像头检测是否运作
-  uint8 IsMotorStalled;        //电机是否堵转
-  uint8 IsMotorDiffrientialOn; //电机差速是否开启
-
-  uint8 IsAiOn; //识别模式是否打开
-
-  float SpeedSet_x;  //x轴速度设置
-	float SpeedSet_y;  //y轴速度设置
-	float SpeedSet_z;  //z轴速度设置
-	float SpeedSet;    //平面速度设置
-	float delet1;
+  float SpeedSet_x; // x轴速度设置
+  float SpeedSet_y; // y轴速度设置
+  float SpeedSet_z; // z轴速度设置
+  float SpeedSet;   //平面速度设置
+  float delet1;
 	float delet2;
+	float delet3;
+	float delet4;
   float RealSpeed; //真实速度
   float AngleSet;  //角度设置
-	float pitch;//俯仰角
-	float roll;//横滚角
-	float yaw;//航向角
+  float pitch;     //俯仰角
+  float roll;      //横滚角
+  float yaw;       //航向角
 
-  double current_angle; //当前图片角度
+  double current_angle; //当前车身偏离角度
 
   int32 PositionSet; //位置设置
+
+  uint8 BinaryMethod; //二值化方法
 
   uint8 BinaryThreshold; //二值化阈值
   int32 RunDistance;     //小车运行距离
@@ -89,16 +91,13 @@ typedef struct
 
 typedef struct
 {
-  uint8 WirelessEnable; //是否启动无线串口
-  uint8 ScreenEnable;   //是否启动显示屏
-
-  uint8 PostureReportEnable;     //是否启动姿态上报
+  uint8 IsFound_dot;             //是否开始目标点寻找
+  uint8 IsAiOn;                  //识别模式是否打开
+  uint8 Binary_start;     //第一次求阈值
   uint8 ImageStatusReportEnable; //是否启动图像处理模式上报
   uint8 AiEnable;                //是否开启识别
   uint8 FuzzyEnable;             //是否启动角度模糊控制
   uint8 ChangeIEnable;           //是否启动速度变积分控制
-
-  uint8 BinaryMethod; //二值化方法
 
   uint16 ApriltagSearchSpeed; //搜索Apriltag速度
 
@@ -116,9 +115,5 @@ extern ControlPidTypedef SpeedControlPid;
 extern ControlPidTypedef AngleControlPid;
 extern ControlPidTypedef PositionControlPid;
 extern SystemSettingsTypedef SystemSettings;
-
-static inline void CarInfoInit(void);
-static inline void SystemSettingsInit(void);
-void CarInformation_init(void);
 
 #endif

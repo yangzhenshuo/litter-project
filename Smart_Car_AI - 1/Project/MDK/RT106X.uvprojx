@@ -1948,6 +1948,16 @@
               <FileType>1</FileType>
               <FilePath>..\CODE\communicate.c</FilePath>
             </File>
+            <File>
+              <FileName>server.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\CODE\server.h</FilePath>
+            </File>
+            <File>
+              <FileName>server.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\CODE\server.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -4287,6 +4297,16 @@
               <FileName>communicate.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\CODE\communicate.c</FilePath>
+            </File>
+            <File>
+              <FileName>server.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\CODE\server.h</FilePath>
+            </File>
+            <File>
+              <FileName>server.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\CODE\server.c</FilePath>
             </File>
           </Files>
         </Group>

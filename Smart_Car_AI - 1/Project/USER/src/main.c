@@ -29,7 +29,7 @@
 
 #include "System.h"
 #include "image.h"
-#include "TSP.h"
+#include "server.h"
 #include "communicate.h"
 //#include "timer_pit.h"
 //#include "encoder.h"
@@ -39,14 +39,17 @@
 //#include "openart_mini.h"
 //#include "smotor.h"
 
-rt_sem_t camera_sem;
-INIT_APP_EXPORT(software_init);
+rt_sem_t camera_sem; //摄像头信号量
+
+INIT_APP_EXPORT(thread_init);
 INIT_APP_EXPORT(hardware_init);
+INIT_APP_EXPORT(timer_init);
+
+char test0[] = "server1\n";
 int main(void)
 {
-  //创建摄像头信号量
+  //创建信号量
   camera_sem = rt_sem_create("camera", 0, RT_IPC_FLAG_FIFO);
-  uint32 use_time;
   //初始化pit定时器用来计时
   pit_init();
   //车信息初始化
@@ -57,23 +60,31 @@ int main(void)
   {
     //等待摄像头采集完毕
     rt_sem_take(camera_sem, RT_WAITING_FOREVER);
+		if(SystemSettings.Binary_start == 'T')
+		{
+			/*************阈值**************/
+			Binary_renew(CarInfo.BinaryMethod);
+			SystemSettings.Binary_start = 'F';
+		}
     //开始处理摄像头图像
-    //rt_kprintf("Start process\n");
     pit_start(PIT_CH0);
     Binary_image();
-		
-    use_time = pit_get_ms(PIT_CH0);
+    //开始第一个服务程序（规划路径）
+    if (SystemSettings.IsFound_dot == 'T')
+    {
+			//seekfree_wireless_send_buff((uint8 *)test0, sizeof(test0) - 1);
+      rt_sem_release(server1_sem);
+      //SystemSettings.IsFound_dot = 'F';
+    }
     pit_close(PIT_CH0);
 
-    //根据图像计算出车模与图像之间的角度
-		Computing_angle(); 
-		ReportImageStatus();
+    //根据图像计算出车模与图像之间的偏离角度
+    //Computing_angle();
+    Report_info();
     //根据偏差进行PD计算
 
     // PD计算之后的值用于寻迹舵机的控制
 
-    // 进入临界区 避免打印的时候被其他线程打断
-    rt_kprintf("main_end:%d\n", use_time);
-	  rt_thread_mdelay(10);
+    // rt_thread_mdelay(10);
   }
 }

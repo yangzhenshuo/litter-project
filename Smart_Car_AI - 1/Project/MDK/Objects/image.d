@@ -1,4 +1,5 @@
 ./objects/image.o: ..\CODE\image.c ..\CODE\image.h \
+  ..\..\Libraries\seekfree_peripheral\SEEKFREE_MT9V03X_CSI.h \
   ..\..\Libraries\seekfree_libraries\common\common.h \
   ..\..\Libraries\nxp_libraries\drives\fsl_common.h \
   E:\Keil\ MDK\Keil\ uvision5\ MDK\ARM\ARMCLANG\Bin\..\include\assert.h \
@@ -20,9 +21,8 @@
   ..\..\Libraries\nxp_libraries\drives\fsl_clock.h \
   ..\..\Libraries\nxp_libraries\drives\fsl_common.h \
   E:\Keil\ MDK\Keil\ uvision5\ MDK\ARM\ARMCLANG\Bin\..\include\math.h \
-  ..\..\Libraries\seekfree_peripheral\SEEKFREE_MT9V03X_CSI.h \
   ..\..\Libraries\seekfree_libraries\zf_uart.h \
-  ..\..\Libraries\nxp_libraries\drives\fsl_lpuart.h ..\CODE\System.h \
+  ..\..\Libraries\nxp_libraries\drives\fsl_lpuart.h \
   ..\..\Libraries\seekfree_libraries\headfile.h \
   ..\..\Libraries\nxp_libraries\utilities\debug_console\fsl_debug_console.h \
   ..\..\Libraries\nxp_libraries\components\serial_manager\serial_manager.h \
@@ -120,4 +120,4 @@
   ..\..\Libraries\seekfree_peripheral\SEEKFREE_W25QXXJV.h \
   ..\..\Libraries\seekfree_peripheral\SEEKFREE_SCC8660_CSI.h \
   ..\..\Libraries\seekfree_peripheral\SEEKFREE_SCC8660.h \
-  ..\CODE\ProjectMath.h ..\CODE\communicate.h
+  ..\CODE\System.h ..\CODE\ProjectMath.h ..\CODE\communicate.h

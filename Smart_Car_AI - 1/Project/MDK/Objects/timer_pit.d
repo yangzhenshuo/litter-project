@@ -120,4 +120,5 @@
   ..\..\Libraries\seekfree_peripheral\SEEKFREE_W25QXXJV.h \
   ..\..\Libraries\seekfree_peripheral\SEEKFREE_SCC8660_CSI.h \
   ..\..\Libraries\seekfree_peripheral\SEEKFREE_SCC8660.h ..\CODE\motor.h \
-  ..\CODE\timer_pit.h ..\CODE\Position.h ..\CODE\control.h
+  ..\CODE\timer_pit.h ..\CODE\Position.h ..\CODE\control.h \
+  ..\CODE\image.h ..\CODE\System.h

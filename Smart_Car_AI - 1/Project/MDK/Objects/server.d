@@ -1,9 +1,9 @@
-./objects/control.o: ..\CODE\control.c ..\CODE\control.h \
-  ..\..\Libraries\seekfree_libraries\common\common.h \
+./objects/server.o: ..\CODE\server.c ..\CODE\System.h \
+  ..\..\Libraries\seekfree_libraries\headfile.h \
+  E:\Keil\ MDK\Keil\ uvision5\ MDK\ARM\ARMCLANG\Bin\..\include\stdint.h \
   ..\..\Libraries\nxp_libraries\drives\fsl_common.h \
   E:\Keil\ MDK\Keil\ uvision5\ MDK\ARM\ARMCLANG\Bin\..\include\assert.h \
   E:\Keil\ MDK\Keil\ uvision5\ MDK\ARM\ARMCLANG\Bin\..\include\stdbool.h \
-  E:\Keil\ MDK\Keil\ uvision5\ MDK\ARM\ARMCLANG\Bin\..\include\stdint.h \
   E:\Keil\ MDK\Keil\ uvision5\ MDK\ARM\ARMCLANG\Bin\..\include\string.h \
   E:\Keil\ MDK\Keil\ uvision5\ MDK\ARM\ARMCLANG\Bin\..\include\stdlib.h \
   ..\..\Libraries\nxp_libraries\deceive\fsl_device_registers.h \
@@ -19,8 +19,6 @@
   ..\..\Libraries\nxp_libraries\deceive\MIMXRT1064_features.h \
   ..\..\Libraries\nxp_libraries\drives\fsl_clock.h \
   ..\..\Libraries\nxp_libraries\drives\fsl_common.h \
-  E:\Keil\ MDK\Keil\ uvision5\ MDK\ARM\ARMCLANG\Bin\..\include\math.h \
-  ..\CODE\motor.h ..\..\Libraries\seekfree_libraries\headfile.h \
   ..\..\Libraries\nxp_libraries\utilities\debug_console\fsl_debug_console.h \
   ..\..\Libraries\nxp_libraries\components\serial_manager\serial_manager.h \
   ..\..\Libraries\nxp_libraries\components\serial_manager\serial_port_uart.h \
@@ -35,6 +33,8 @@
   ..\..\Libraries\seekfree_libraries\board\pin_mux.h \
   ..\..\Libraries\seekfree_libraries\board\clock_config.h \
   ..\..\Libraries\nxp_libraries\drives\fsl_cache.h \
+  ..\..\Libraries\seekfree_libraries\common\common.h \
+  E:\Keil\ MDK\Keil\ uvision5\ MDK\ARM\ARMCLANG\Bin\..\include\math.h \
   ..\..\Libraries\seekfree_libraries\zf_vector.h \
   ..\..\Libraries\nxp_libraries\middleware\fatfs\source\ff.h \
   ..\..\Libraries\nxp_libraries\middleware\fatfs\source\ffconf.h \
@@ -120,5 +120,4 @@
   ..\..\Libraries\seekfree_peripheral\SEEKFREE_W25QXXJV.h \
   ..\..\Libraries\seekfree_peripheral\SEEKFREE_SCC8660_CSI.h \
   ..\..\Libraries\seekfree_peripheral\SEEKFREE_SCC8660.h \
-  ..\CODE\encoder.h ..\CODE\projectmath.h ..\CODE\System.h \
-  ..\CODE\position.h ..\CODE\image.h
+  ..\CODE\server.h ..\CODE\image.h ..\CODE\TSP.h

@@ -1,8 +1,8 @@
 #ifndef CODE_IMAGE_H
 #define CODE_IMAGE_H
 
-#include "common.h"
 #include "SEEKFREE_MT9V03X_CSI.h"
+#include "headfile.h"
 
 #define IMAGE_H (MT9V03X_CSI_H)    //图像高度
 #define IMAGE_W (MT9V03X_CSI_W)    //图像宽度
@@ -43,10 +43,14 @@ extern ImageStatusTypedef ImageStatus;
 extern uint8 BinaryImage[IMAGE_H][IMAGE_W];   //存放二值图
 extern uint8 hist_eq_image[IMAGE_H][IMAGE_W]; //存放直方图均衡化图片
 extern uint8 angle_dot[2];
+extern rt_event_t event1;
 
-void camera_thread_init(void);
-void Binary_threshold(uint8 type);
+void BinaryRenew_thread_init(void);
+void Binary_renew(uint8 type);
 void Found_dot_info(void);
 void Binary_image(void);
 void Computing_angle(void);
+void find_top_angle(void);
+void Scan_line(void);
+
 #endif

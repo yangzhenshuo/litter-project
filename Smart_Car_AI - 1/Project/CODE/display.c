@@ -1,3 +1,8 @@
+/*
+ * display.c
+ * ips1.14ÆÁÄ»ÏÔÊ¾
+ * Author: ÑîÕòË¶
+ */
 #include "headfile.h"
 #include "System.h"
 #include "display.h"

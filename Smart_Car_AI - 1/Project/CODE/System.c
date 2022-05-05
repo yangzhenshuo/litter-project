@@ -16,19 +16,22 @@
 #include "image.h"
 #include "TSP.h"
 #include "communicate.h"
+#include "server.h"
 
-SystemSettingsTypedef SystemSettings;//系统信息
-CarInfoTypedef CarInfo;//小车信息
-ControlPidTypedef SpeedControlPid = {9.0,0.5,0.0};//速度控制pid参数初始化
-ControlPidTypedef AngleControlPid = {0.6,0.1,0};              //角度pid参数
-ControlPidTypedef PositionControlPid = {0.005, 0.005, 0};     //位置pid参数
-CarPulseTypedef CarPulse = {0,0,0,0};//编码器初值
-GyroOffsetTypedef GyroOffset = {0.0,0.0,0.0};//陀螺仪零飘初始化数据
-ICMTypedef icm = {0.0,0.0,0.0,0.0,0.0,0.0};//ICM数据初始化
-speedTypedef speed = {0.0,0.0};//速度初始化
-positionTypedef position = {0.2,0.2};//位置初始化化
-coordinateTypedef coordinate = {1,1};//初始坐标
-float dtt = 0.001;                                   //积分时间
+SystemSettingsTypedef SystemSettings;                     //系统信息
+CarInfoTypedef CarInfo;                                   //小车信息
+ControlPidTypedef SpeedControlPid = {15.0, 2.0, 0.0};     //速度控制pid参数初始化
+ControlPidTypedef AngleControlPid = {5.0, 0, 40};         //角度pid参数
+ControlPidTypedef PositionControlPid = {0.03, 0.03, 0.1}; //位置pid参数
+CarPulseTypedef CarPulse = {0, 0, 0, 0};                  //编码器初值
+GyroOffsetTypedef GyroOffset = {0.0, 0.0, 0.0};           //陀螺仪零飘初始化数据
+ICMTypedef icm = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};          // ICM数据初始化
+speedTypedef speed = {0.0, 0.0};                          //速度初始化
+positionTypedef position = {94, 120};                     //位置初始化
+coordinateTypedef coordinate = {1, 1};                    //初始坐标
+float dtt = 0.020;                                        //积分时间
+
+extern rt_timer_t timer1;
 /***********************************************************
  * @brief 运行时参数初始化
  * @param
@@ -36,15 +39,10 @@ float dtt = 0.001;                                   //积分时间
  ***********************************************************/
 static inline void CarInfoInit(void)
 {
-  CarInfo.IsRun = 'F'; //是否运行
-  // CarInfo.IsCameraDetectRun = 'T';     //摄像头检测是否运作
-  CarInfo.IsMotorStalled = 'F'; //电机是否堵转
-  // CarInfo.IsMotorDiffrientialOn = 'T'; //电机差速是否开启
-  CarInfo.IsAiOn = 'F'; //识别模式是否打开
+  CarInfo.SpeedSet_x = 0; // x轴速度设置
+  CarInfo.SpeedSet_y = 0; // y轴速度设置
+  CarInfo.SpeedSet_z = 0; // z轴速度设置
 
-  CarInfo.SpeedSet_x = 0;  // x轴速度设置
-  CarInfo.SpeedSet_y = 0;  // y轴速度设置
-  CarInfo.SpeedSet_z = 0;  // z轴速度设置
   CarInfo.RealSpeed = 0;   //真实速度
   CarInfo.AngleSet = 0;    //角度设置
   CarInfo.PositionSet = 0; //位置设置
@@ -53,10 +51,17 @@ static inline void CarInfoInit(void)
   CarInfo.roll = 0.0;
   CarInfo.yaw = 0.0; //真实角度
 
+  CarInfo.delet1 = 0;
+  CarInfo.delet2 = 0;
+  CarInfo.delet3 = 0;
+  CarInfo.delet4 = 0;
+
   CarInfo.current_angle = 0.0;
 
-  CarInfo.BinaryThreshold = 70; //二值化阈值
-  CarInfo.RunDistance = 0;      //小车运行距离
+  CarInfo.BinaryMethod = 0; //二值化方法(起始二值化化方法最大类间法）
+
+  CarInfo.BinaryThreshold = 200; //二值化阈值
+  CarInfo.RunDistance = 0;       //小车运行距离
 
   //模拟点
   DotTypedef Dot[20] = {{1, 1}, {7, 8}, {18, 22}, {25, 29}, {13, 34}, {8, 13}, {21, 10}, {10, 6}, {1, 6}, {2, 15}, {10, 10}, {22, 7}, {25, 3}, {29, 20}};
@@ -68,13 +73,13 @@ static inline void CarInfoInit(void)
  ***********************************************************/
 static inline void SystemSettingsInit(void)
 {
-  SystemSettings.PostureReportEnable = 'F';     //是否启动姿态上报
+  SystemSettings.IsFound_dot = 'T';             //是否开始目标点寻找
+  SystemSettings.IsAiOn = 'F';                  //识别模式是否打开
+  SystemSettings.Binary_start = 'T';     //阈值第一次求取
   SystemSettings.ImageStatusReportEnable = 'F'; //是否启动图像处理模式上报
   SystemSettings.AiEnable = 'F';                //是否开启识别
   SystemSettings.FuzzyEnable = 'T';             //是否启动角度模糊控制
   SystemSettings.ChangeIEnable = 'F';           //是否启动速度变积分控制
-
-  SystemSettings.BinaryMethod = 0; //二值化方法(起始二值化化方法最大类间法）
 
   SystemSettings.ApriltagSearchSpeed = 10; //搜索Apriltag速度
 }
@@ -89,8 +94,6 @@ void CarInformation_init(void)
   CarInfoInit();
   /*************设置初始化**************/
   SystemSettingsInit();
-  /*************阈值**************/
-  Binary_threshold(SystemSettings.BinaryMethod);
 }
 /***********************************************************
  * @brief 硬件设备初始化
@@ -102,14 +105,11 @@ int hardware_init(void)
   //电机初始化
   motor_init();
   //编码器初始化
-   encoder_init();
-  //摄像头总转风初始化
-  mt9v03x_csi_init();
+  encoder_init();
   //姿态传感器icm20602初始化
   icm20602_init_spi();
-	
-  //陀螺仪零飘初始化
- 
+  //摄像头总转风初始化
+  mt9v03x_csi_init();
   // OpenArt初始化
   // openart_mini_init();
   //无线转串口通信初始化
@@ -121,12 +121,32 @@ int hardware_init(void)
  * @param
  * @return
  ***********************************************************/
-int software_init(void)
+int thread_init(void)
 {
-  buzzer_thread_init();  //蜂鸣器线程初始化
-  display_thread_init(); //显示线程初始化
-  button_init();         //按键检测定时器初始化
-  timer_pit_init();//定时器初始化
-  // camera_thread_init();
+  buzzer_thread_init();  //蜂鸣器线程初始化（优先级20）
+  display_thread_init(); //显示线程初始化(优先级31)
+  server_thread_init();  //服务线程初始化（优先级11）
+  BinaryRenew_thread_init();//二值化更新线程（优先级12）
   return 0;
+}
+/***********************************************************
+ * @brief 定时器初始化
+ * @param
+ * @return
+ ***********************************************************/
+int timer_init(void)
+{
+  button_init();     //按键检测定时器初始化
+  timer1_pit_init(); //定时器初始化
+  return 0;
+}
+/***********************************************************
+ * @brief 系统停止
+ * @param
+ * @return
+ ***********************************************************/
+void System_stop(void)
+{
+  rt_timer_stop(timer1);
+  MotorStopped();
 }

@@ -18,3 +18,5 @@ rtt系统的线程入口函数要在启动前给一个rt_thread_mdelay(10);来�
 2022 4 30 version1.6
 完成电机控制的pid参数调试
 摄像头图像信息处理更新
+更改库SEEKFREE_WIRELESS.c（加入了上位机信息处理，更改串口中断函数）
+完备rtthread系统在智能车上的应用

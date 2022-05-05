@@ -3,6 +3,7 @@
 
 #include "headfile.h"
 
-void timer_pit_init(void);
+void timer1_pit_init(void);
+void timer2_pit_init(void);
 
 #endif
