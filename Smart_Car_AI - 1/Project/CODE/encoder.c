@@ -1,5 +1,6 @@
 #include "encoder.h"
 #include "System.h"
+#include "zf_qtimer.h"
 
 #define ENCODER1_QTIMER		QTIMER_1
 #define ENCODER1_A			QTIMER1_TIMER0_C0
@@ -35,12 +36,12 @@ void encoder_init(void)
 ***********************************************************/
 void EncoderPulseGet(void)
 {
-    CarPulse.R1 = qtimer_quad_get(ENCODER1_QTIMER, ENCODER1_A);
+    CarPulse.R1=qtimer_quad_get(ENCODER1_QTIMER, ENCODER1_A);
     qtimer_quad_clear(ENCODER1_QTIMER, ENCODER1_A);
-    CarPulse.L1= qtimer_quad_get(ENCODER2_QTIMER, ENCODER2_A);
+    CarPulse.L1=-qtimer_quad_get(ENCODER2_QTIMER, ENCODER2_A);
     qtimer_quad_clear(ENCODER2_QTIMER, ENCODER2_A);
-	  CarPulse.L2= qtimer_quad_get(ENCODER3_QTIMER, ENCODER3_A);
+	  CarPulse.L2=-qtimer_quad_get(ENCODER3_QTIMER, ENCODER3_A);
     qtimer_quad_clear(ENCODER3_QTIMER, ENCODER3_A);
-	  CarPulse.R2= qtimer_quad_get(ENCODER4_QTIMER, ENCODER4_A);
+	  CarPulse.R2=qtimer_quad_get(ENCODER4_QTIMER, ENCODER4_A);
     qtimer_quad_clear(ENCODER4_QTIMER, ENCODER4_A);
 }

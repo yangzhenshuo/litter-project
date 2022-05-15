@@ -19,15 +19,15 @@ void timer1_pit_entry(void *parameter)
   static uint32 time;
   time++;
 
-  if (0 == (time % 5))
+  if (0 == (time % 5) && SystemSettings.Is_control == 'T')
   {
-    //速度控制与角速度控制（控制周期5ms）
+    //速度控制与角度控制（控制周期5ms）
     SpeedControl();
-    AngleControl();
   }
-  if (0 == (time % 20))
+  if (0 == (time % 20) && SystemSettings.Is_control == 'T')
   {
     //位置控制（控制周期20ms）
+    AngleControl();
     PositionControl();
   }
   // if (0 == (time % 100))
@@ -40,12 +40,9 @@ void timer1_pit_entry(void *parameter)
 void timer2_pit_entry(void *parameter)
 {
   static uint16 time;
-  //实时定位
-  location();
   if (0 == time % 100)
   {
-    //位置坐标化
-    coordinatograph();
+    
   }
 }
 

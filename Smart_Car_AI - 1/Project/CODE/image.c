@@ -144,7 +144,7 @@ uint8 LightModeBuff[120][188] = {
     {51, 51, 51, 51, 51, 51, 50, 49, 48, 47, 46, 45, 44, 43, 42, 42, 41, 40, 39, 38, 38, 37, 36, 35, 35, 34, 33, 33, 32, 32, 31, 30, 30, 29, 29, 28, 28, 27, 27, 26, 26, 25, 25, 24, 24, 24, 23, 23, 22, 22, 22, 21, 21, 21, 20, 20, 20, 19, 19, 19, 19, 18, 18, 18, 18, 17, 17, 17, 17, 17, 16, 16, 16, 16, 16, 16, 16, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 14, 14, 14, 14, 14, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 16, 16, 16, 16, 16, 16, 16, 17, 17, 17, 17, 17, 18, 18, 18, 18, 19, 19, 19, 19, 20, 20, 20, 21, 21, 21, 22, 22, 22, 23, 23, 24, 24, 24, 25, 25, 26, 26, 27, 27, 28, 28, 29, 29, 30, 30, 31, 32, 32, 33, 33, 34, 35, 35, 36, 37, 38, 38, 39, 40, 41, 42, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 51, 51, 51, 51, 51, 51},
     {51, 51, 51, 51, 51, 51, 51, 50, 49, 48, 47, 46, 45, 44, 43, 42, 41, 41, 40, 39, 38, 38, 37, 36, 35, 35, 34, 33, 33, 32, 32, 31, 30, 30, 29, 29, 28, 28, 27, 27, 26, 26, 25, 25, 25, 24, 24, 23, 23, 23, 22, 22, 22, 21, 21, 21, 20, 20, 20, 19, 19, 19, 19, 18, 18, 18, 18, 18, 17, 17, 17, 17, 17, 16, 16, 16, 16, 16, 16, 16, 16, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 16, 16, 16, 16, 16, 16, 16, 16, 17, 17, 17, 17, 17, 18, 18, 18, 18, 18, 19, 19, 19, 19, 20, 20, 20, 21, 21, 21, 22, 22, 22, 23, 23, 23, 24, 24, 25, 25, 25, 26, 26, 27, 27, 28, 28, 29, 29, 30, 30, 31, 32, 32, 33, 33, 34, 35, 35, 36, 37, 38, 38, 39, 40, 41, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 51, 51, 51, 51, 51, 51, 51},
 };
-rt_event_t event1;
+rt_sem_t binary_sem;
 
 /***********************************************************
  * @brief 二值化更新线程的入口函数
@@ -155,21 +155,13 @@ void Binary_entry()
 {
   rt_thread_mdelay(10); // 延时等待finsh初始化完毕
   rt_uint32_t e;
-	char test[] = "Binary\n";
+  char test[] = "Binary\n";
   while (1)
   {
-		seekfree_wireless_send_buff((uint8 *)test, sizeof(test) - 1);
-    if (rt_event_recv(event1, ((1) | (2)),
-                      RT_EVENT_FLAG_OR | RT_EVENT_FLAG_CLEAR,
-                      RT_WAITING_FOREVER, &e) == RT_EOK)
-    {
-      //      //发送图片数据到上位机
-      //      csi_seekfree_sendimg_03x(USART_1, BinaryImage[0], MT9V03X_CSI_W, MT9V03X_CSI_H);
-      //			//seekfree_wireless_send_buff(BinaryImage[0],sizeof(BinaryImage[0])-1);
-      //      mt9v03x_csi_finish_flag = 0;
-      Binary_renew(CarInfo.BinaryMethod);
-			//seekfree_wireless_send_buff((uint8 *)test, sizeof(test) - 1);
-    }
+		rt_sem_take(binary_sem,RT_WAITING_FOREVER);
+    seekfree_wireless_send_buff((uint8 *)test, sizeof(test) - 1);
+    Binary_renew(CarInfo.BinaryMethod);
+      
   }
 }
 /***********************************************************
@@ -185,9 +177,9 @@ void BinaryRenew_thread_init()
                             RT_NULL,      //线程入口参数
                             1024,         //线程栈大小1024字节
                             12,           //线程优先级
-                            30);          //线程时间片，同优先级线程起作用
+                            10);          //线程时间片，同优先级线程起作用
   //创造事件
-  event1 = rt_event_create("event1", RT_IPC_FLAG_FIFO);
+  binary_sem = rt_sem_create("binary_sem", 0,RT_IPC_FLAG_FIFO);
 
   //启动线程
   if (RT_NULL != binary)
@@ -633,7 +625,7 @@ void find_top_angle()
     row_pic = BinaryImage[j];
     for (i = 1; i < 187; i++)
     {
-      if (*(row_pic + i) == White && *(row_pic + i - 1) == Black) //找到顶点(黑白)
+      if (*(row_pic + i) == White && *(row_pic + i - 1) == Black && *(row_pic + i + 1) == Black) //找到顶点(黑白黑)
       {
         angle_dot[0] = i; //顶点横坐标
         angle_dot[1] = j; //顶点纵坐标
@@ -643,6 +635,44 @@ void find_top_angle()
     }
     if (Flag == 1)
     {
+      break;
+    }
+  }
+}
+/*************************************************************
+ * @brief 寻找底边中点
+ *
+ * @return 带回底边中点信息
+ *************************************************************/
+uint8 midpoint[2]; //中点信息
+void find_midpoint()
+{
+  int flag = 0; //找到底边标志位
+  int flag1 = 0;
+  int j, i;
+  //寻找底边
+  for (j = 119; j > 0; j--)
+  {
+    for (i = 1; i < 187; i++)
+    {
+      if (BinaryImage[j][i - 1] == Black && BinaryImage[j][i] == White && BinaryImage[j][i + 1] == White) //判断找到底边
+      {
+        flag1 = i;
+        midpoint[1] = j + 2; //简单滤波
+        flag = 1;
+        break;
+      }
+    }
+    if (flag == 1)
+    {
+      break;
+    }
+  }
+  for (i = 187; i < flag1; i--)
+  {
+    if (BinaryImage[midpoint[1]][i] == Black && BinaryImage[midpoint[1]][i - 1] == White)
+    {
+      midpoint[0] = (flag1 + i - 1) / 2;
       break;
     }
   }
@@ -664,7 +694,7 @@ void Computing_angle()
   double left_angle;  //左边夹角
   double right_angle; //右边夹角
   uint8 *row_pic;     //保存单行图片
-  //找顶点
+  //找角点
   find_top_angle();
   //找图像左边（从顶点向左）
   int left_flag = 0;

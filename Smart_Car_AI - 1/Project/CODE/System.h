@@ -55,9 +55,9 @@ typedef struct
   float SpeedSet_z; // z轴速度设置
   float SpeedSet;   //平面速度设置
   float delet1;
-	float delet2;
-	float delet3;
-	float delet4;
+  float delet2;
+  float delet3;
+  float delet4;
   float RealSpeed; //真实速度
   float AngleSet;  //角度设置
   float pitch;     //俯仰角
@@ -71,7 +71,12 @@ typedef struct
   uint8 BinaryMethod; //二值化方法
 
   uint8 BinaryThreshold; //二值化阈值
-  int32 RunDistance;     //小车运行距离
+  double RunDistance1;   //小车运行距离
+  double RunDistance2;
+  
+  uint8 Iscorrect;
+  float distance1;
+  float distance2;
 } CarInfoTypedef;
 
 typedef struct
@@ -93,7 +98,8 @@ typedef struct
 {
   uint8 IsFound_dot;             //是否开始目标点寻找
   uint8 IsAiOn;                  //识别模式是否打开
-  uint8 Binary_start;     //第一次求阈值
+  uint8 Is_control;              //是否开启控制
+  uint8 Binary_start;            //第一次求阈值
   uint8 ImageStatusReportEnable; //是否启动图像处理模式上报
   uint8 AiEnable;                //是否开启识别
   uint8 FuzzyEnable;             //是否启动角度模糊控制

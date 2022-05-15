@@ -60,31 +60,31 @@ int main(void)
   {
     //等待摄像头采集完毕
     rt_sem_take(camera_sem, RT_WAITING_FOREVER);
-		if(SystemSettings.Binary_start == 'T')
-		{
-			/*************阈值**************/
-			Binary_renew(CarInfo.BinaryMethod);
-			SystemSettings.Binary_start = 'F';
-		}
+    if (SystemSettings.Binary_start == 'T')
+    {
+      /*************阈值**************/
+      Binary_renew(CarInfo.BinaryMethod);
+      SystemSettings.Binary_start = 'F';
+    }
     //开始处理摄像头图像
     pit_start(PIT_CH0);
     Binary_image();
     //开始第一个服务程序（规划路径）
     if (SystemSettings.IsFound_dot == 'T')
     {
-			//seekfree_wireless_send_buff((uint8 *)test0, sizeof(test0) - 1);
+      // seekfree_wireless_send_buff((uint8 *)test0, sizeof(test0) - 1);
       rt_sem_release(server1_sem);
       //SystemSettings.IsFound_dot = 'F';
     }
     pit_close(PIT_CH0);
-
-    //根据图像计算出车模与图像之间的偏离角度
-    //Computing_angle();
     Report_info();
-    //根据偏差进行PD计算
+//    //根据偏差进行PD计算
+//    if(CarInfo.Iscorrect == 'T')
+//    {
+//      rt_sem_release(server2_sem);
+//    }
+//    // PD计算之后的值用于寻迹舵机的控制
 
-    // PD计算之后的值用于寻迹舵机的控制
-
-    // rt_thread_mdelay(10);
+    rt_thread_mdelay(20);
   }
 }

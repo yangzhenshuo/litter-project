@@ -43,7 +43,8 @@ extern ImageStatusTypedef ImageStatus;
 extern uint8 BinaryImage[IMAGE_H][IMAGE_W];   //存放二值图
 extern uint8 hist_eq_image[IMAGE_H][IMAGE_W]; //存放直方图均衡化图片
 extern uint8 angle_dot[2];
-extern rt_event_t event1;
+extern uint8 midpoint[2];
+extern rt_sem_t binary_sem;
 
 void BinaryRenew_thread_init(void);
 void Binary_renew(uint8 type);
@@ -52,5 +53,6 @@ void Binary_image(void);
 void Computing_angle(void);
 void find_top_angle(void);
 void Scan_line(void);
+void find_midpoint(void);
 
 #endif

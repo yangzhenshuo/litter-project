@@ -1,4 +1,3 @@
-
 #include "buzzer.h"
 #include "button.h"
 #include "System.h"
@@ -9,7 +8,6 @@
 #define KEY_3 C26 // 定义主板上按键对应引脚
 #define KEY_4 C4  // 定义主板上按键对应引脚
 
-extern float Threshold;
 //开关状态变量
 uint8 key1_status = 1;
 uint8 key2_status = 1;
@@ -50,12 +48,12 @@ void button_entry(void *parameter)
     if (CarInfo.BinaryMethod < 3 && CarInfo.BinaryMethod >= 0)
     {
       CarInfo.BinaryMethod++;
-      rt_event_send(event1, (1));
+      rt_sem_release(binary_sem);
     }
     else
     {
       CarInfo.BinaryMethod = 0;
-      rt_event_send(event1, (2));
+      rt_sem_release(binary_sem);
     }
     rt_mb_send(buzzer_mailbox, 100);
   }
@@ -65,12 +63,12 @@ void button_entry(void *parameter)
     if (CarInfo.BinaryMethod <= 3 && CarInfo.BinaryMethod > 0)
     {
       CarInfo.BinaryMethod--;
-      rt_event_send(event1, (1));
+      rt_sem_release(binary_sem);
     }
     else
     {
       CarInfo.BinaryMethod = 0;
-      rt_event_send(event1, (2));
+      rt_sem_release(binary_sem);
     }
     rt_mb_send(buzzer_mailbox, 100);
   }
@@ -86,7 +84,6 @@ void button_entry(void *parameter)
     rt_sem_release(key4_sem);
 
     CarInfo.BinaryThreshold -= 4;
-
     rt_mb_send(buzzer_mailbox, 100);
   }
 }

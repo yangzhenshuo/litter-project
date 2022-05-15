@@ -14,8 +14,9 @@
 ***********************************************************/
 void display_entry(void *parameter)
 {
-	  //ips114_clear(WHITE);
+	  
 	  rt_thread_mdelay(10);										// 延时等待finsh初始化完毕
+	  ips114_clear(WHITE);
     while(1)
     {
 //      ips114_showstr(0, 1,"Yaw:");
@@ -51,7 +52,7 @@ void display_thread_init(void)
 														display_entry, //线程入口函数
 														RT_NULL, //入口参数
 														1024, //线程栈
-														31, //优先级
+														14, //优先级
 														30);//时间片
     
     //启动显示线程

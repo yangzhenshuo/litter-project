@@ -5,6 +5,6 @@
 
 void server_thread_init(void);
 
-extern rt_sem_t server1_sem; //路径规划信号量
+extern rt_sem_t server1_sem, server2_sem; //路径规划信号量
 
 #endif
