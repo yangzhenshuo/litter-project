@@ -22,13 +22,13 @@ void timer1_pit_entry(void *parameter)
   static uint32 time;
   time++;
 
-  if (0 == (time % 5))
+  if (0 == (time % 5)&& SystemSettings.Is_control =='T')
   {
     //速度控制（控制周期5ms）
     SpeedControl();
     //seekfree_wireless_send_buff((uint8 *)test, sizeof(test) - 1);
   }
-  if (0 == (time % 20))
+  if (0 == (time % 20)&& SystemSettings.Is_control =='T')
   {
     //位置控制与角度控制（控制周期20ms）
 		AngleControl();

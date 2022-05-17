@@ -35,12 +35,13 @@
 //#include "encoder.h"
 //#include "buzzer.h"
 //#include "button.h"
-//#include "motor.h"
+#include "motor.h"
 //#include "openart_mini.h"
 //#include "smotor.h"
 
 rt_sem_t camera_sem; //摄像头信号量
 
+INIT_APP_EXPORT(motor_init); //电机首先初始化
 INIT_APP_EXPORT(thread_init);
 INIT_APP_EXPORT(hardware_init);
 INIT_APP_EXPORT(timer_init);

@@ -75,21 +75,21 @@ static inline void CarInfoInit(void)
  * @brief 消除陀螺仪零点偏差
  * @param
  * @return
-***********************************************************/
+ ***********************************************************/
 void gyro_offset_init(void)
 {
-	for (uint16_t i = 0; i < 100; ++i) 
-	{
-     get_icm20602_gyro_spi();    // 获取陀螺仪角速度
-     GyroOffset.x += icm_gyro_x;
-     GyroOffset.y += icm_gyro_y;
-     GyroOffset.z += icm_gyro_z;
-     systick_delay_ms(5);    // 最大 1Khz
-   }
+  for (uint16_t i = 0; i < 100; ++i)
+  {
+    get_icm20602_gyro_spi(); // 获取陀螺仪角速度
+    GyroOffset.x += icm_gyro_x;
+    GyroOffset.y += icm_gyro_y;
+    GyroOffset.z += icm_gyro_z;
+    systick_delay_ms(5); // 最大 1Khz
+  }
 
-   GyroOffset.x /= 100;
-   GyroOffset.y /= 100;
-   GyroOffset.z /= 100;
+  GyroOffset.x /= 100;
+  GyroOffset.y /= 100;
+  GyroOffset.z /= 100;
 }
 /***********************************************************
  * @brief 设置初始化
@@ -105,7 +105,7 @@ static inline void SystemSettingsInit(void)
   SystemSettings.ImageStatusReportEnable = 'F'; //是否启动图像处理模式上报
   SystemSettings.AiEnable = 'F';                //是否开启识别
   SystemSettings.FuzzyEnable = 'T';             //是否启动角度模糊控制
-  SystemSettings.ChangeIEnable = 'F';           //是否启动速度变积分控制
+  SystemSettings.ChangeIEnable = 'T';           //是否启动速度变积分控制
 
   SystemSettings.ApriltagSearchSpeed = 10; //搜索Apriltag速度
 }
@@ -128,13 +128,11 @@ void CarInformation_init(void)
  ***********************************************************/
 int hardware_init(void)
 {
-  //电机初始化
-  motor_init();
   //编码器初始化
   encoder_init();
   //姿态传感器icm20602初始化
   icm20602_init_spi();
-	gyro_offset_init();
+  gyro_offset_init();
   //摄像头总转风初始化
   mt9v03x_csi_init();
   // OpenArt初始化

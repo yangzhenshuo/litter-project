@@ -17,11 +17,11 @@ uint8 LightImage[IMAGE_H][IMAGE_W];    //光补偿图
 static int Ysite = 0, Xsite = 0; // X、Y坐标
 static uint8 *PicRaw;            //保存单行图像
 
-BoxDataTypedef BoxData;         //方框信息
-ImageStatusTypedef ImageStatus; //图像状态信息
-BoxTypedef Box;                 //方框的长宽
-DotTypedef Dot[20];             //存放点的x，y坐标
-uint16 Num = 0;                 //目标点的数量
+BoxDataTypedef BoxData;        //方框信息
+PhotoStatusTypedef Photo[120]; //图像状态信息
+BoxTypedef Box;                //方框的长宽
+DotTypedef Dot[20];            //存放点的x，y坐标
+uint16 Num = 0;                //目标点的数量
 uint8 LightModeBuff[120][188] = {
     {49, 48, 47, 46, 45, 44, 43, 42, 41, 40, 40, 39, 38, 37, 36, 35, 35, 34, 33, 33, 32, 31, 30, 30, 29, 29, 28, 27, 27, 26, 26, 25, 25, 24, 24, 23, 23, 22, 22, 21, 21, 20, 20, 20, 19, 19, 18, 18, 18, 17, 17, 17, 16, 16, 16, 15, 15, 15, 15, 14, 14, 14, 14, 13, 13, 13, 13, 13, 12, 12, 12, 12, 12, 12, 12, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 12, 12, 12, 12, 12, 12, 12, 13, 13, 13, 13, 13, 14, 14, 14, 14, 15, 15, 15, 15, 16, 16, 16, 17, 17, 17, 18, 18, 18, 19, 19, 20, 20, 20, 21, 21, 22, 22, 23, 23, 24, 24, 25, 25, 26, 26, 27, 27, 28, 29, 29, 30, 30, 31, 32, 33, 33, 34, 35, 35, 36, 37, 38, 39, 40, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50},
     {49, 48, 47, 46, 45, 44, 43, 42, 41, 40, 39, 38, 37, 37, 36, 35, 34, 33, 33, 32, 31, 31, 30, 29, 29, 28, 27, 27, 26, 26, 25, 25, 24, 24, 23, 23, 22, 22, 21, 21, 20, 20, 20, 19, 19, 18, 18, 18, 17, 17, 17, 16, 16, 16, 15, 15, 15, 15, 14, 14, 14, 14, 13, 13, 13, 13, 12, 12, 12, 12, 12, 12, 11, 11, 11, 11, 11, 11, 11, 11, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 11, 11, 11, 11, 11, 11, 11, 11, 12, 12, 12, 12, 12, 12, 13, 13, 13, 13, 14, 14, 14, 14, 15, 15, 15, 15, 16, 16, 16, 17, 17, 17, 18, 18, 18, 19, 19, 20, 20, 20, 21, 21, 22, 22, 23, 23, 24, 24, 25, 25, 26, 26, 27, 27, 28, 29, 29, 30, 31, 31, 32, 33, 33, 34, 35, 36, 37, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50},
@@ -180,7 +180,7 @@ void BinaryRenew_thread_init()
                             RT_NULL,      //线程入口参数
                             1024,         //线程栈大小1024字节
                             12,           //线程优先级
-                            3);          //线程时间片，同优先级线程起作用
+                            3);           //线程时间片，同优先级线程起作用
   //创造事件
   event1 = rt_event_create("event1", RT_IPC_FLAG_FIFO);
 
@@ -611,6 +611,116 @@ void Found_dot_info()
     Dot[i].y = (int)(BoxData.HighBorder - Dot[i].y) * k0 / 20;
   }
 }
+/***********************************************************
+ * @brief 大描线
+ ***********************************************************/
+uint8 test4[] = "start\n";
+// uint8 test2[] = "find dot\n";
+static inline void big_scan(void)
+{
+  for (Ysite = 119; Ysite >= 0; Ysite--)
+  {
+    PicRaw = BinaryImage[Ysite];
+    if (*(PicRaw + CENTER_POINT) == White) //图像中心点为白
+    {
+      for (Xsite = 0; Xsite < CENTER_POINT; Xsite++) //找左右边线
+      {
+        if (*(PicRaw + CENTER_POINT - Xsite) == Black) //找到左右线
+          break;
+        if (*(PicRaw + CENTER_POINT + Xsite) == Black)
+          break;
+      }
+      if (*(PicRaw + CENTER_POINT - Xsite) == Black) //车在图片左边的话
+      {
+        Photo[Ysite].left = CENTER_POINT - Xsite; //图片左边界点
+        for (Xsite = Photo[Ysite].left; Xsite < 186; Xsite++)
+        {
+          if (*(PicRaw + Xsite) == Black && *(PicRaw + Xsite + 1) == Black)
+          {
+            Photo[Ysite].right = Xsite;
+            break;
+          }
+          else if (Xsite == 186)
+          {
+            Photo[Ysite].right = 187;
+            break;
+          }
+        }
+        Photo[Ysite].Isdot = 1;
+      }
+      else if (*(PicRaw + CENTER_POINT + Xsite) == Black) //车在图片左边的话
+      {
+        Photo[Ysite].right = CENTER_POINT + Xsite; //图片左边界点
+        for (Xsite = Photo[Ysite].right; Xsite > 1; Xsite--)
+        {
+          if (*(PicRaw + Xsite) == Black && *(PicRaw + Xsite - 1) == Black)
+          {
+            Photo[Ysite].left = Xsite;
+            break;
+          }
+          else if (Xsite == 1)
+          {
+            Photo[Ysite].left = 0;
+            break;
+          }
+        }
+        Photo[Ysite].Isdot = 1;
+      }
+
+      Photo[Ysite].center = (Photo[Ysite].left + Photo[Ysite].right) / 2;
+    }
+    else if (*(PicRaw + CENTER_POINT) == Black) //图像中点为黑
+    {
+      for (Xsite = 0; Xsite < CENTER_POINT; Xsite++) //找左右边线
+      {
+        if (*(PicRaw + CENTER_POINT - Xsite) == White) //找到左右线
+          break;
+        if (*(PicRaw + CENTER_POINT + Xsite) == White)
+          break;
+      }
+      if (*(PicRaw + CENTER_POINT - Xsite) == White && *(PicRaw + CENTER_POINT - Xsite - 2) == White) //车在图片右边的话
+      {
+        Photo[Ysite].right = CENTER_POINT - Xsite; //图片右边界点
+        for (Xsite = Photo[Ysite].right; Xsite > 1; Xsite--)
+        {
+          if (*(PicRaw + Xsite) == Black && *(PicRaw + Xsite - 1) == Black)
+          {
+            Photo[Ysite].right = Xsite;
+            break;
+          }
+          else if (Xsite == 1)
+          {
+            Photo[Ysite].right = 0;
+            break;
+          }
+        }
+        Photo[Ysite].Isdot = 1;
+      }
+      else if (*(PicRaw + CENTER_POINT + Xsite) == White && *(PicRaw + CENTER_POINT + Xsite + 2) == White) //车在图片左边的话
+      {
+        Photo[Ysite].left = CENTER_POINT + Xsite; //图片左边界点
+        for (Xsite = Photo[Ysite].left; Xsite < 186; Xsite++)
+        {
+          if (*(PicRaw + Xsite) == Black && *(PicRaw + Xsite + 1) == Black)
+          {
+            Photo[Ysite].right = Xsite;
+            break;
+          }
+          else if (Xsite == 186)
+          {
+            Photo[Ysite].right = 187;
+            break;
+          }
+        }
+        Photo[Ysite].Isdot = 1;
+      }
+      Photo[Ysite].center = (Photo[Ysite].left + Photo[Ysite].right) / 2;
+    }
+    //    if (Photo[Ysite].Isdot == 0 && Xsite == CENTER_POINT)
+    //      break;
+  }
+  seekfree_wireless_send_buff((uint8 *)test4, sizeof(test4) - 1);
+}
 /*************************************************************
  * @brief 寻找定点
  *
@@ -650,9 +760,9 @@ void find_top_angle()
 uint8 midpoint[2]; //中点信息
 void find_midpoint()
 {
+  int i,j;
   int flag = 0; //找到底边标志位
-  int flag1 = 0;
-  int j, i;
+  //int flag1 = 0;
   //寻找底边
   for (j = 119; j > 0; j--)
   {
@@ -660,8 +770,8 @@ void find_midpoint()
     {
       if (BinaryImage[j][i - 1] == Black && BinaryImage[j][i] == White && BinaryImage[j][i + 1] == White) //判断找到底边
       {
-        flag1 = i;
-        midpoint[1] = j - 1; //简单滤波
+        midpoint[1] = j; //简单滤波
+				midpoint[0] = i;
         flag = 1;
         break;
       }
@@ -671,14 +781,28 @@ void find_midpoint()
       break;
     }
   }
-  for (i = 187; i > flag1; i--)
-  {
-    if (BinaryImage[midpoint[1]][i] == Black && BinaryImage[midpoint[1]][i - 1] == White)
-    {
-      midpoint[0] = (flag1 + i - 1) / 2;
-      break;
-    }
-  }
+  
+//  int n = 0;
+//  midpoint[0] = 0;
+//  midpoint[1] = 0;
+//  big_scan();
+//  for (int i = 119; i > 0; i--)
+//  {
+//    if (Photo[i].center != 0)
+//    {
+//      midpoint[1] = i;
+//      break;
+//    }
+//  }
+//  for (int j = 119; j > 0; j--)
+//  {
+//    if (Photo[j].center != 0)
+//    {
+//      midpoint[0] += Photo[j].center;
+//      n++;
+//    }
+//  }
+//  midpoint[0] /= n;
 }
 /*************************************************************
  * @brief 计算当前车与图片存在的角度
@@ -687,9 +811,6 @@ void find_midpoint()
  *************************************************************/
 uint8 Left_border[20][2];  //左边信息
 uint8 Right_border[20][2]; //右边信息
-
-// uint8 test1[] = "start find dot\n";
-// uint8 test2[] = "find dot\n";
 
 void Computing_angle()
 {

@@ -7,10 +7,11 @@
 #include "server.h"
 #include "image.h"
 #include "TSP.h"
+#include "motor.h"
+#include "buzzer.h"
 
 rt_sem_t server1_sem;
 rt_sem_t server2_sem;
-
 /***********************************************
  * @brief 智能车开启进行目标点的搜寻并规划路线
  * @param
@@ -69,11 +70,14 @@ void pos_rectify(void *parameter)
     //    {
     find_midpoint();
     //给出中点x轴像素坐标（控制到94）
-    CarInfo.distance2 = midpoint[0] - 94; //x轴偏差
-    CarInfo.distance1 = midpoint[1] - 119;//y轴偏差
-    if (CarInfo.distance1 == 0 && CarInfo.distance2 == 0)
+    CarInfo.distance1 = midpoint[0] - 36; //x轴偏差
+    CarInfo.distance2 = 110 - midpoint[1];//y轴偏差
+    if (CarInfo.distance1 < 6 &&CarInfo.distance1 > -6 && CarInfo.distance2 < 4 && CarInfo.distance2 > -4)
     {
       CarInfo.Iscorrect = 'F';
+			SystemSettings.Is_control = 'F';
+      rt_mb_send(buzzer_mailbox, 100);
+			MotorStopped();
     }
     //    }
     //seekfree_wireless_send_buff((uint8 *)test, sizeof(test) - 1);

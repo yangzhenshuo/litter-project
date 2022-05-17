@@ -29,7 +29,7 @@ static inline void ReportStatus(void)
 static inline void Reportcontrol(void)
 {
   char temp[100];
-  sprintf(temp, "%d,%d,%d,%d,%d,%d;\n", (int)CarInfo.distance1, (int)CarInfo.distance2, (int)CarInfo.delet3, (int)CarInfo.delet4, (int)CarInfo.delet1, (int)CarInfo.delet2);
+  sprintf(temp, "%d,%d;\n", (int)CarInfo.distance1, (int)CarInfo.distance2);
   seekfree_wireless_send_buff((uint8 *)temp, strlen(temp));
 }
 /***********************************************************

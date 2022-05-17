@@ -1,5 +1,4 @@
 #include "motor.h"
-
 #define f_DIR_L D0
 #define f_DIR_R D1
 #define r_DIR_L D14
@@ -9,12 +8,13 @@
 #define f_PWM_R PWM2_MODULE3_CHB_D3
 #define r_PWM_L PWM1_MODULE0_CHA_D12
 #define r_PWM_R PWM1_MODULE0_CHB_D13
+
 /***********************************************************
- * @brief µç»ú¿ØÖÆÒı½Å³õÊ¼»¯
+ * @brief ç”µæœºæ§åˆ¶å¼•è„šåˆå§‹åŒ–
  * @param
  * @return
  ***********************************************************/
-void motor_init(void)
+int motor_init(void)
 {
   gpio_init(f_DIR_L, GPO, GPIO_HIGH, GPIO_PIN_CONFIG);
   gpio_init(f_DIR_R, GPO, GPIO_HIGH, GPIO_PIN_CONFIG);
@@ -24,78 +24,78 @@ void motor_init(void)
   pwm_init(f_PWM_L, 17000, 0); //
   pwm_init(f_PWM_R, 17000, 0); //
   pwm_init(r_PWM_L, 17000, 0); //
-  pwm_init(r_PWM_R, 17000, 0); // ³õÊ¼»¯ÆµÂÊ17KHz Õ¼¿Õ±È³õÊ¼Îª0
+  pwm_init(r_PWM_R, 17000, 0); // åˆå§‹åŒ–é¢‘ç‡17KHz å ç©ºæ¯”åˆå§‹ä¸º0
+	return 0;
 }
-
 /***********************************************************
- * @brief Ë«µç»ú×ªËÙ,·½ÏòÉèÖÃ
- * @param LeftMotorPwm ×óÂÖpwm
- * @param RightMotorPwm ÓÒÂÖpwm
+ * @brief ç”µæœºè½¬é€Ÿ,æ–¹å‘è®¾ç½®
+ * @param LeftMotorPwm å·¦è½®pwm
+ * @param RightMotorPwm å³è½®pwm
  * @return
  ***********************************************************/
-void motor_control(int32 f_duty_l, int32 f_duty_r, int32 r_duty_l, int32 r_duty_r)
+void motor_control(int32 f_duty_l, int32 f_duty_r, int32 r_duty_l, int32 r_duty_r) //ä»å‰è‡³åä¾æ¬¡ä¸ºå³å‰è½®ï¼Œå·¦å‰è½®ï¼Œå³åè½®ï¼Œå·¦åè½®
 {
-  //¶ÔÕ¼¿Õ±ÈÏŞ·ù
+  //å¯¹å ç©ºæ¯”é™å¹…
   f_duty_l = limit(f_duty_l, PWM_DUTY_MAX);
   f_duty_r = limit(f_duty_r, PWM_DUTY_MAX);
   r_duty_l = limit(r_duty_l, PWM_DUTY_MAX);
   r_duty_r = limit(r_duty_r, PWM_DUTY_MAX);
 
-  if (r_duty_l >= 0) // ×ó²àÕı×ª
+  if (r_duty_l >= 0)
   {
-    gpio_set(r_DIR_L, GPIO_HIGH); // DIRÊä³ö¸ßµçÆ½
-    pwm_duty(r_PWM_L, r_duty_l);  // ¼ÆËãÕ¼¿Õ±È
+    gpio_set(r_DIR_L, GPIO_LOW); // DIRè¾“å‡ºé«˜ç”µå¹³
+    pwm_duty(r_PWM_L, r_duty_l); // è®¡ç®—å ç©ºæ¯”
   }
-  else // ×ó²à·´×ª
+  else
   {
-    gpio_set(r_DIR_L, GPIO_LOW);  // DIRÊä³öµÍµçÆ½
-    pwm_duty(r_PWM_L, -r_duty_l); // ¼ÆËãÕ¼¿Õ±È
-  }
-
-  if (r_duty_r >= 0) // ÓÒ²àÕı×ª
-  {
-    gpio_set(r_DIR_R, GPIO_HIGH); // DIRÊä³ö¸ßµçÆ½
-    pwm_duty(r_PWM_R, r_duty_r);  // ¼ÆËãÕ¼¿Õ±È
-  }
-  else // ÓÒ²à·´×ª
-  {
-    gpio_set(r_DIR_R, GPIO_LOW);  // DIRÊä³öµÍµçÆ½
-    pwm_duty(r_PWM_R, -r_duty_r); // ¼ÆËãÕ¼¿Õ±È
+    gpio_set(r_DIR_L, GPIO_HIGH); // DIRè¾“å‡ºä½ç”µå¹³
+    pwm_duty(r_PWM_L, -r_duty_l); // è®¡ç®—å ç©ºæ¯”
   }
 
-  if (f_duty_l >= 0) // ×ó²àÕı×ª
+  if (r_duty_r >= 0)
   {
-    gpio_set(f_DIR_L, GPIO_HIGH); // DIRÊä³ö¸ßµçÆ½
-    pwm_duty(f_PWM_L, f_duty_l);  // ¼ÆËãÕ¼¿Õ±È
+    gpio_set(r_DIR_R, GPIO_LOW); // DIRè¾“å‡ºé«˜ç”µå¹³
+    pwm_duty(r_PWM_R, r_duty_r); // è®¡ç®—å ç©ºæ¯”
   }
-  else // ×ó²à·´×ª
+  else
   {
-    gpio_set(f_DIR_L, GPIO_LOW);  // DIRÊä³öµÍµçÆ½
-    pwm_duty(f_PWM_L, -f_duty_l); // ¼ÆËãÕ¼¿Õ±È
+    gpio_set(r_DIR_R, GPIO_HIGH); // DIRè¾“å‡ºä½ç”µå¹³
+    pwm_duty(r_PWM_R, -r_duty_r); // è®¡ç®—å ç©ºæ¯”
   }
 
-  if (f_duty_r >= 0) // ÓÒ²àÕı×ª
+  if (f_duty_l >= 0)
   {
-    gpio_set(f_DIR_R, GPIO_HIGH); // DIRÊä³ö¸ßµçÆ½
-    pwm_duty(f_PWM_R, f_duty_r);  // ¼ÆËãÕ¼¿Õ±È
+    gpio_set(f_DIR_L, GPIO_HIGH); // DIRè¾“å‡ºé«˜ç”µå¹³
+    pwm_duty(f_PWM_L, f_duty_l);  // è®¡ç®—å ç©ºæ¯”
   }
-  else // ÓÒ²à·´×ª
+  else
   {
-    gpio_set(f_DIR_R, GPIO_LOW);  // DIRÊä³öµÍµçÆ½
-    pwm_duty(f_PWM_R, -f_duty_r); // ¼ÆËãÕ¼¿Õ±È
+    gpio_set(f_DIR_L, GPIO_LOW);  // DIRè¾“å‡ºä½ç”µå¹³
+    pwm_duty(f_PWM_L, -f_duty_l); // è®¡ç®—å ç©ºæ¯”
+  }
+
+  if (f_duty_r >= 0)
+  {
+    gpio_set(f_DIR_R, GPIO_HIGH); // DIRè¾“å‡ºé«˜ç”µå¹³
+    pwm_duty(f_PWM_R, f_duty_r);  // è®¡ç®—å ç©ºæ¯”
+  }
+  else
+  {
+    gpio_set(f_DIR_R, GPIO_LOW);  // DIRè¾“å‡ºä½ç”µå¹³
+    pwm_duty(f_PWM_R, -f_duty_r); // è®¡ç®—å ç©ºæ¯”
   }
 }
 /***********************************************************
- * @brief Ë«µç»úÍ£×ª
+ * @brief åŒç”µæœºåœè½¬
  * @param
  * @return
  ***********************************************************/
 void MotorStopped(void)
 {
-  //Ç°ÂÖÍ£×ª
+  //å‰è½®åœè½¬
   pwm_duty(f_PWM_L, 0);
   pwm_duty(f_PWM_R, 0);
-  //ºóÂÖÍ£×ª
+  //åè½®åœè½¬
   pwm_duty(r_PWM_L, 0);
   pwm_duty(r_PWM_R, 0);
 }

@@ -12,9 +12,11 @@
 //图像状态信息
 typedef struct
 {
-  int OFFLine; /////图像顶边
-  int Flag;    ////0表示“无黑特域”，1为“普通三边”，2为“宽边三边”，3为“双侧双边”，4为“左侧双边”，5为“右侧双边”
-} ImageStatusTypedef;
+  int left;  //图片左边
+  int right; //图片右边
+  int center;//图片中心、
+  short int Isdot;//是否存在点(0没有点，1有点)
+} PhotoStatusTypedef;
 //方框信息
 typedef struct
 {
@@ -39,7 +41,7 @@ typedef struct
 extern DotTypedef Dot[20];
 extern BoxDataTypedef BoxData;
 extern BoxTypedef Box;
-extern ImageStatusTypedef ImageStatus;
+extern PhotoStatusTypedef Photo[120];
 extern uint8 BinaryImage[IMAGE_H][IMAGE_W];   //存放二值图
 extern uint8 hist_eq_image[IMAGE_H][IMAGE_W]; //存放直方图均衡化图片
 extern uint8 angle_dot[2];
