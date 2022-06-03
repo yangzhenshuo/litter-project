@@ -7,7 +7,7 @@
 #include "position.h"
 #include "image.h"
 
-#define MOTOR_PWM_MAX (900.0 * 50) //电机最大PWM
+#define MOTOR_PWM_MAX (500.0 * 50) //电机最大PWM
 
 /*************速度控制参数******************/
 static float f_LeftSpeed = 0;       //左前电机速度
@@ -131,9 +131,9 @@ void ResetControlArgs(void)
  ***********************************************************/
 static inline void CarPostureCal(void)
 {
-    get_icm20602_accdata_spi(); //获取加速度计数据
+//    get_icm20602_accdata_spi(); //获取加速度计数据
     get_icm20602_gyro_spi();    // 获取陀螺仪角速度
-    float alpha = 0.3;
+//    float alpha = 0.3;
     float x, y, z;
     x = (float)icm_gyro_x - GyroOffset.x;
     y = (float)icm_gyro_y - GyroOffset.y;
@@ -144,9 +144,9 @@ static inline void CarPostureCal(void)
         y = 0;
     if (z <= 10 && z >= -10)
         z = 0;
-    icm.acc_x = (((float)icm_acc_x) * alpha) / 4096 + icm.acc_x * (1 - alpha);
-    icm.acc_y = (((float)icm_acc_y) * alpha) / 4096 + icm.acc_y * (1 - alpha);
-    icm.acc_z = (((float)icm_acc_z) * alpha) / 4096 + icm.acc_z * (1 - alpha);
+//    icm.acc_x = (((float)icm_acc_x) * alpha) / 4096 + icm.acc_x * (1 - alpha);
+//    icm.acc_y = (((float)icm_acc_y) * alpha) / 4096 + icm.acc_y * (1 - alpha);
+//    icm.acc_z = (((float)icm_acc_z) * alpha) / 4096 + icm.acc_z * (1 - alpha);
     icm.gyro_x = x / 16.4;
     icm.gyro_y = y / 16.4;
     icm.gyro_z = z / 16.4;
@@ -199,8 +199,12 @@ static inline float SpeedChangeI(float delta)
  ***********************************************************/
 static inline void AngleControlCal(void)
 {
-    float AngleDelta;                                                                                        //角速度偏差
-    AngleDelta = CarInfo.AngleSet - CarInfo.yaw;                                                             //计算偏差量
+    float AngleDelta; 	//角速度偏差
+	  if(CarInfo.Iscorrect=='F')
+    {
+			AngleDelta = CarInfo.AngleSet - CarInfo.yaw;
+		}			//计算偏差量
+		else AngleDelta=CarInfo.angle;
     CarInfo.SpeedSet_z = AngleControlPid.P * AngleDelta + AngleControlPid.D * (AngleDelta - AngleDeltaPrev); //位置式PD控制
     AngleDeltaPrev = AngleDelta;	//更新为上次偏差
 
@@ -286,8 +290,6 @@ static inline void SpeedControlCal(void)
     r_LeftSpeedDeltaPrevPrev = r_LeftSpeedDeltaPrev; //更新为上上次偏差
     r_LeftSpeedDeltaPrev = SpeedDelta2;              //更新为上次偏差                                                                      //保存上一次偏差
     r_LeftSpeedControlOut += r_LeftSpeedControlBais; //增量输出
-		CarInfo.delet3 = r_LeftSpeedControlOut;
-		CarInfo.delet4 = CarInfo.SpeedSet_x;
     /**************右前轮控制计算*************/
     SpeedDelta3 = SpeedSet_R1 - f_RightSpeed;                                            //计算偏差量
     f_RightSpeedControlBais = SpeedControlPid.P * (SpeedDelta3 - f_RightSpeedDeltaPrev); //增量式PID控制
@@ -397,15 +399,15 @@ void PositionControl(void)
     float PositionDelta_x; //位置偏差
     if (CarInfo.Iscorrect == 'F')
     {
-        PositionDelta_x = position.x * 20 - (CarInfo.RunDistance1 / 220) * 5.5 * PI;
+        PositionDelta_x = position.x * 200 - (CarInfo.RunDistance1 / 210) * 5.5 * PI;
     } //计算偏差量
     else
-        PositionDelta_x = CarInfo.distance2;
-    PositionDeviationIntegrate_x += PositionDelta_x;
-    if (PositionDeviationIntegrate_x > 10)       // 100//200
-        PositionDeviationIntegrate_x = 10;       // 100//200
-    else if (PositionDeviationIntegrate_x < -10) // 100//200
-        PositionDeviationIntegrate_x = -10;      // 100//2000
+        PositionDelta_x = CarInfo.distance1;
+    PositionDeviationIntegrate_x += PositionDelta_x*5;
+    if (PositionDeviationIntegrate_x > 20)       // 100//200
+        PositionDeviationIntegrate_x = 20;       // 100//200
+    else if (PositionDeviationIntegrate_x < -20) // 100//200
+        PositionDeviationIntegrate_x = -20;      // 100//2000
     PositionControlOut_x = PositionControlPid.P * PositionDelta_x + PositionControlPid.I * PositionDeviationIntegrate_x + PositionControlPid.D * (PositionDelta_x - PositionDeltaPrev_x);
     PositionDeltaPrev_x = PositionDelta_x;
     if (PositionControlOut_x > 80)
@@ -417,18 +419,20 @@ void PositionControl(void)
         PositionControlOut_x = -80;
     }
     CarInfo.SpeedSet_x = PositionControlOut_x;
+		CarInfo.delet3 = PositionDelta_x;
+		CarInfo.delet4 = (CarInfo.RunDistance1 / 210) * 5.5 * PI;
     float PositionDelta_y; //位置偏差
     if (CarInfo.Iscorrect == 'F')
     {
-        PositionDelta_y = position.y * 20 - (CarInfo.RunDistance2 / 220) * 5.5 * PI; //计算偏差量
+        PositionDelta_y = position.y * 200 - (CarInfo.RunDistance2 / 220) * 5.5 * PI; //计算偏差量
     }
     else
-        PositionDelta_y = CarInfo.distance1;
+        PositionDelta_y = CarInfo.distance2*5;
     PositionDeviationIntegrate_y += PositionDelta_y;
-    if (PositionDeviationIntegrate_y > 10)       // 100//200
-        PositionDeviationIntegrate_y = 10;       // 100//200
-    else if (PositionDeviationIntegrate_y < -10) // 100//200
-        PositionDeviationIntegrate_y = -10;      // 100//2000
+    if (PositionDeviationIntegrate_y > 20)       // 100//200
+        PositionDeviationIntegrate_y = 20;       // 100//200
+    else if (PositionDeviationIntegrate_y < -20) // 100//200
+        PositionDeviationIntegrate_y = -20;      // 100//2000
     PositionControlOut_y = PositionControlPid.P * PositionDelta_y + PositionControlPid.I * PositionDeviationIntegrate_y + PositionControlPid.D * (PositionDelta_y - PositionDeltaPrev_y);
     PositionDeltaPrev_y = PositionDelta_y;
     if (PositionControlOut_y > 80)
@@ -440,6 +444,6 @@ void PositionControl(void)
         PositionControlOut_y = -80;
     }
     CarInfo.SpeedSet_y = PositionControlOut_y;
-    CarInfo.delet1 = PositionDelta_y;
-    CarInfo.delet2 = CarInfo.SpeedSet_y;
+	  CarInfo.delet1 = PositionDelta_y;
+		CarInfo.delet2 = (CarInfo.RunDistance2 / 220) * 5.5 * PI;
 }

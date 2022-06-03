@@ -73,10 +73,11 @@ typedef struct
   uint8 BinaryThreshold; //二值化阈值
   double RunDistance1;   //小车运行距离
   double RunDistance2;
-  
+  int dotnum;              //搜索到的目标点的数量
   uint8 Iscorrect;
   float distance1;
   float distance2;
+	float angle;
 } CarInfoTypedef;
 
 typedef struct
@@ -98,16 +99,27 @@ typedef struct
 {
   uint8 IsFound_dot;             //是否开始目标点寻找
   uint8 IsAiOn;                  //识别模式是否打开
-  uint8 Is_control;              //是否开启控制
+  uint8 IsControl;              //是否开启控制
   uint8 Binary_start;            //第一次求阈值
-  uint8 ImageStatusReportEnable; //是否启动图像处理模式上报
+  uint8 Complete; 
   uint8 AiEnable;                //是否开启识别
   uint8 FuzzyEnable;             //是否启动角度模糊控制
   uint8 ChangeIEnable;           //是否启动速度变积分控制
-
+	uint8 SpeedControl;            //是否启动速度控制
+  uint8 AngleControl;            //是否启动角度控制
+	uint8 PositionControl;         //是否启动位置控制
+	
   uint16 ApriltagSearchSpeed; //搜索Apriltag速度
 
 } SystemSettingsTypedef;
+
+//目标点的信息
+typedef struct
+{
+  uint8 x;
+  uint8 y;
+	uint8 flag;
+} DotTypedef;
 
 extern float dtt;
 extern GyroOffsetTypedef GyroOffset;
@@ -121,5 +133,7 @@ extern ControlPidTypedef SpeedControlPid;
 extern ControlPidTypedef AngleControlPid;
 extern ControlPidTypedef PositionControlPid;
 extern SystemSettingsTypedef SystemSettings;
+extern DotTypedef dot[20];
+extern int dot_num;
 
 #endif

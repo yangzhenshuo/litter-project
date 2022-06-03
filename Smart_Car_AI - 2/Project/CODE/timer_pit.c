@@ -6,7 +6,6 @@
 #include "encoder.h"
 #include "motor.h"
 #include "timer_pit.h"
-#include "Position.h"
 #include "control.h"
 #include "image.h"
 #include "System.h"
@@ -22,17 +21,26 @@ void timer1_pit_entry(void *parameter)
   static uint32 time;
   time++;
 
-  if (0 == (time % 5)&& SystemSettings.Is_control =='T')
+  if (0 == (time % 5))
   {
-    //速度控制（控制周期5ms）
+    //速度控制（控制周期5ms
+		if(SystemSettings.IsControl == 'T')
+		{
     SpeedControl();
+		}
     //seekfree_wireless_send_buff((uint8 *)test, sizeof(test) - 1);
   }
-  if (0 == (time % 20)&& SystemSettings.Is_control =='T')
+  if (0 == (time % 20))
   {
     //位置控制与角度控制（控制周期20ms）
+		if(SystemSettings.IsControl == 'T')
+		{
 		AngleControl();
+		}
+		if(SystemSettings.IsControl== 'T')
+		{
     PositionControl();
+		}
 		time = 0;
 		//seekfree_wireless_send_buff((uint8 *)test1, sizeof(test1) - 1);
   }
@@ -43,17 +51,6 @@ void timer1_pit_entry(void *parameter)
   //}
 }
 
-void timer2_pit_entry(void *parameter)
-{
-  static uint16 time;
-  //实时定位
-  location();
-  if (0 == time % 100)
-  {
-    //位置坐标化
-    coordinatograph();
-  }
-}
 
 void timer1_pit_init(void)
 {
@@ -70,17 +67,4 @@ void timer1_pit_init(void)
     rt_timer_start(timer1);
   }
 }
-void timer2_pit_init(void)
-{
-  //创建定时器2 周期运行
-  timer2 = rt_timer_create("timer2",
-                           timer2_pit_entry,
-                           RT_NULL,
-                           1,
-                           RT_TIMER_FLAG_PERIODIC);
-  //启动定时器
-  if (RT_NULL != timer2)
-  {
-    rt_timer_start(timer2);
-  }
-}
+

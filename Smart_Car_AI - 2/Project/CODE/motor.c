@@ -1,101 +1,100 @@
 #include "motor.h"
-#define f_DIR_L D0
-#define f_DIR_R D1
-#define r_DIR_L D14
-#define r_DIR_R D15
+#define f_DIR_L				D0
+#define f_DIR_R				D1
+#define r_DIR_L       D14
+#define r_DIR_R       D15
 
-#define f_PWM_L PWM2_MODULE3_CHA_D2
-#define f_PWM_R PWM2_MODULE3_CHB_D3
-#define r_PWM_L PWM1_MODULE0_CHA_D12
-#define r_PWM_R PWM1_MODULE0_CHB_D13
+#define f_PWM_L				PWM2_MODULE3_CHA_D2
+#define f_PWM_R				PWM2_MODULE3_CHB_D3
+#define r_PWM_L       PWM1_MODULE0_CHA_D12
+#define r_PWM_R       PWM1_MODULE0_CHB_D13
 
 /***********************************************************
- * @brief ç”µæœºæ§åˆ¶å¼•è„šåˆå§‹åŒ–
+ * @brief µç»ú¿ØÖÆÒı½Å³õÊ¼»¯
  * @param
  * @return
- ***********************************************************/
-int motor_init(void)
+***********************************************************/
+void motor_init(void)
 {
-  gpio_init(f_DIR_L, GPO, GPIO_HIGH, GPIO_PIN_CONFIG);
-  gpio_init(f_DIR_R, GPO, GPIO_HIGH, GPIO_PIN_CONFIG);
-  gpio_init(r_DIR_L, GPO, GPIO_HIGH, GPIO_PIN_CONFIG);
-  gpio_init(r_DIR_R, GPO, GPIO_HIGH, GPIO_PIN_CONFIG);
+	gpio_init(f_DIR_L, GPO, GPIO_HIGH, GPIO_PIN_CONFIG);
+	gpio_init(f_DIR_R, GPO, GPIO_HIGH, GPIO_PIN_CONFIG);
+	gpio_init(r_DIR_L, GPO, GPIO_HIGH, GPIO_PIN_CONFIG);
+	gpio_init(r_DIR_R, GPO, GPIO_HIGH, GPIO_PIN_CONFIG);
 
-  pwm_init(f_PWM_L, 17000, 0); //
-  pwm_init(f_PWM_R, 17000, 0); //
-  pwm_init(r_PWM_L, 17000, 0); //
-  pwm_init(r_PWM_R, 17000, 0); // åˆå§‹åŒ–é¢‘ç‡17KHz å ç©ºæ¯”åˆå§‹ä¸º0
-	return 0;
+	pwm_init(f_PWM_L, 17000, 0);												// 
+	pwm_init(f_PWM_R, 17000, 0);												// 
+	pwm_init(r_PWM_L, 17000, 0);												// 
+	pwm_init(r_PWM_R, 17000, 0);												// ³õÊ¼»¯ÆµÂÊ17KHz Õ¼¿Õ±È³õÊ¼Îª0
 }
 /***********************************************************
- * @brief ç”µæœºè½¬é€Ÿ,æ–¹å‘è®¾ç½®
- * @param LeftMotorPwm å·¦è½®pwm
- * @param RightMotorPwm å³è½®pwm
+ * @brief µç»ú×ªËÙ,·½ÏòÉèÖÃ
+ * @param LeftMotorPwm ×óÂÖpwm
+ * @param RightMotorPwm ÓÒÂÖpwm
  * @return
- ***********************************************************/
-void motor_control(int32 f_duty_l, int32 f_duty_r, int32 r_duty_l, int32 r_duty_r) //ä»å‰è‡³åä¾æ¬¡ä¸ºå³å‰è½®ï¼Œå·¦å‰è½®ï¼Œå³åè½®ï¼Œå·¦åè½®
+***********************************************************/
+void motor_control(int32 f_duty_l, int32 f_duty_r, int32 r_duty_l, int32 r_duty_r)//´ÓÇ°ÖÁºóÒÀ´ÎÎªÓÒÇ°ÂÖ£¬×óÇ°ÂÖ£¬ÓÒºóÂÖ£¬×óºóÂÖ
 {
-  //å¯¹å ç©ºæ¯”é™å¹…
-  f_duty_l = limit(f_duty_l, PWM_DUTY_MAX);
-  f_duty_r = limit(f_duty_r, PWM_DUTY_MAX);
-  r_duty_l = limit(r_duty_l, PWM_DUTY_MAX);
-  r_duty_r = limit(r_duty_r, PWM_DUTY_MAX);
-
-  if (r_duty_l >= 0)
-  {
-    gpio_set(r_DIR_L, GPIO_LOW); // DIRè¾“å‡ºé«˜ç”µå¹³
-    pwm_duty(r_PWM_L, r_duty_l); // è®¡ç®—å ç©ºæ¯”
-  }
-  else
-  {
-    gpio_set(r_DIR_L, GPIO_HIGH); // DIRè¾“å‡ºä½ç”µå¹³
-    pwm_duty(r_PWM_L, -r_duty_l); // è®¡ç®—å ç©ºæ¯”
-  }
-
-  if (r_duty_r >= 0)
-  {
-    gpio_set(r_DIR_R, GPIO_LOW); // DIRè¾“å‡ºé«˜ç”µå¹³
-    pwm_duty(r_PWM_R, r_duty_r); // è®¡ç®—å ç©ºæ¯”
-  }
-  else
-  {
-    gpio_set(r_DIR_R, GPIO_HIGH); // DIRè¾“å‡ºä½ç”µå¹³
-    pwm_duty(r_PWM_R, -r_duty_r); // è®¡ç®—å ç©ºæ¯”
-  }
-
-  if (f_duty_l >= 0)
-  {
-    gpio_set(f_DIR_L, GPIO_HIGH); // DIRè¾“å‡ºé«˜ç”µå¹³
-    pwm_duty(f_PWM_L, f_duty_l);  // è®¡ç®—å ç©ºæ¯”
-  }
-  else
-  {
-    gpio_set(f_DIR_L, GPIO_LOW);  // DIRè¾“å‡ºä½ç”µå¹³
-    pwm_duty(f_PWM_L, -f_duty_l); // è®¡ç®—å ç©ºæ¯”
-  }
-
-  if (f_duty_r >= 0)
-  {
-    gpio_set(f_DIR_R, GPIO_HIGH); // DIRè¾“å‡ºé«˜ç”µå¹³
-    pwm_duty(f_PWM_R, f_duty_r);  // è®¡ç®—å ç©ºæ¯”
-  }
-  else
-  {
-    gpio_set(f_DIR_R, GPIO_LOW);  // DIRè¾“å‡ºä½ç”µå¹³
-    pwm_duty(f_PWM_R, -f_duty_r); // è®¡ç®—å ç©ºæ¯”
-  }
+    //¶ÔÕ¼¿Õ±ÈÏŞ·ù
+	f_duty_l = limit(f_duty_l, PWM_DUTY_MAX);
+	f_duty_r = limit(f_duty_r, PWM_DUTY_MAX);
+	r_duty_l = limit(r_duty_l, PWM_DUTY_MAX);
+	r_duty_r = limit(r_duty_r, PWM_DUTY_MAX);
+    
+     if(r_duty_l >= 0)											
+    {
+        gpio_set(r_DIR_L, GPIO_HIGH);							// DIRÊä³ö¸ßµçÆ½
+        pwm_duty(r_PWM_L, r_duty_l);						    // ¼ÆËãÕ¼¿Õ±È
+    }
+    else													
+    {
+        gpio_set(r_DIR_L, GPIO_LOW);							// DIRÊä³öµÍµçÆ½
+        pwm_duty(r_PWM_L, -r_duty_l);							// ¼ÆËãÕ¼¿Õ±È
+    }
+    
+    if(r_duty_r >= 0)											
+    {
+        gpio_set(r_DIR_R, GPIO_HIGH);							// DIRÊä³ö¸ßµçÆ½
+        pwm_duty(r_PWM_R, r_duty_r);							// ¼ÆËãÕ¼¿Õ±È
+    }
+    else													
+    {
+        gpio_set(r_DIR_R, GPIO_LOW);							// DIRÊä³öµÍµçÆ½
+        pwm_duty(r_PWM_R, -r_duty_r);							// ¼ÆËãÕ¼¿Õ±È
+    }
+    
+    if(f_duty_l >= 0)											
+    {
+        gpio_set(f_DIR_L, GPIO_LOW);							// DIRÊä³ö¸ßµçÆ½
+        pwm_duty(f_PWM_L, f_duty_l);						    // ¼ÆËãÕ¼¿Õ±È
+    }
+    else													
+    {
+        gpio_set(f_DIR_L, GPIO_HIGH);							// DIRÊä³öµÍµçÆ½
+        pwm_duty(f_PWM_L, -f_duty_l);							// ¼ÆËãÕ¼¿Õ±È
+    }
+    
+    if(f_duty_r >= 0)											
+    {
+        gpio_set(f_DIR_R, GPIO_LOW);							// DIRÊä³ö¸ßµçÆ½
+        pwm_duty(f_PWM_R, f_duty_r);							// ¼ÆËãÕ¼¿Õ±È
+    }
+    else												
+    {
+        gpio_set(f_DIR_R, GPIO_HIGH);							// DIRÊä³öµÍµçÆ½
+        pwm_duty(f_PWM_R, -f_duty_r);							// ¼ÆËãÕ¼¿Õ±È
+    }
 }
 /***********************************************************
- * @brief åŒç”µæœºåœè½¬
+ * @brief Ë«µç»úÍ£×ª
  * @param
  * @return
- ***********************************************************/
+***********************************************************/
 void MotorStopped(void)
 {
-  //å‰è½®åœè½¬
-  pwm_duty(f_PWM_L, 0);
-  pwm_duty(f_PWM_R, 0);
-  //åè½®åœè½¬
-  pwm_duty(r_PWM_L, 0);
-  pwm_duty(r_PWM_R, 0);
+    //Ç°ÂÖÍ£×ª
+    pwm_duty(f_PWM_L, 0); 
+    pwm_duty(f_PWM_R, 0); 
+    //ºóÂÖÍ£×ª
+    pwm_duty(r_PWM_L, 0); 
+    pwm_duty(r_PWM_R, 0);
 }

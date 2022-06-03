@@ -29,7 +29,7 @@ static inline void ReportStatus(void)
 static inline void Reportcontrol(void)
 {
   char temp[100];
-  sprintf(temp, "%d,%d;\n", (int)CarInfo.distance1, (int)CarInfo.distance2);
+  sprintf(temp, "%d,%d,%d,%d;\n",(int)CarInfo.delet1, (int)CarInfo.delet2, (int)CarInfo.delet3, (int)CarInfo.delet4);
   seekfree_wireless_send_buff((uint8 *)temp, strlen(temp));
 }
 /***********************************************************
@@ -51,8 +51,8 @@ static inline void ReportMap(void)
 static inline void ReportDot(void)
 {
   char temp1[100];
-  sprintf(temp1, "%d,%d->%d,%d->%d,%d->%d,%d->%d,%d->%d,%d;\n", Dot[0].x, Dot[0].y, Dot[1].x, Dot[1].y, Dot[2].x, Dot[2].y,
-          Dot[3].x, Dot[3].y, Dot[4].x, Dot[4].y, Dot[5].x, Dot[5].y);
+  sprintf(temp1, "%d,%d->%d,%d->%d,%d->%d,%d->%d,%d->%d,%d;\n", dot[0].x, dot[0].y, dot[1].x, dot[1].y, dot[2].x, dot[2].y,
+          dot[3].x, dot[3].y, dot[4].x, dot[4].y, dot[5].x, dot[5].y);
   seekfree_wireless_send_buff((uint8 *)temp1, strlen(temp1));
 }
 /***********************************************************
@@ -66,12 +66,12 @@ void Report_info(void)
 	char test1[] = " Dot:";
 	char test2[] = "info:";
 	char test3[] = "control:";
-	seekfree_wireless_send_buff((uint8 *)test3,sizeof(test3)-1);
-	Reportcontrol();
-	seekfree_wireless_send_buff((uint8 *)test2,sizeof(test2)-1);
-  ReportStatus();
+//  	seekfree_wireless_send_buff((uint8 *)test3,sizeof(test3)-1);
+//   	Reportcontrol();
+//	seekfree_wireless_send_buff((uint8 *)test2,sizeof(test2)-1);
+//  ReportStatus();
 //	seekfree_wireless_send_buff((uint8 *)test,sizeof(test)-1);
 //  ReportMap();
-//	seekfree_wireless_send_buff((uint8 *)test1,sizeof(test1)-1);
-//  ReportDot();
+	seekfree_wireless_send_buff((uint8 *)test1,sizeof(test1)-1);
+  ReportDot();
 }

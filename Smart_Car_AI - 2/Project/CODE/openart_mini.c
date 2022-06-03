@@ -1,5 +1,6 @@
 #include "openart_mini.h"
 #include "buzzer.h"
+#include "System.h"
 
 #define OPENART_MINI_UART USART_4
 
@@ -25,8 +26,7 @@ void handle_OpenartMessage(char *CommandRecv, uint8 CommandLength)
   {
     if (strstr(p, "orange"))
     {
-
-      rt_kprintf("orange\n");
+      rt_kprintf("orange\n");			
       rt_mb_send(buzzer_mailbox, 100);
     }
     else if (strstr(p, "durain"))
@@ -47,6 +47,37 @@ void handle_OpenartMessage(char *CommandRecv, uint8 CommandLength)
     }
     p++;
   }
+}
+/***********************************************************
+ * @brief 接收openart传来的目标点信息
+ * @param CommandRecv 存储指令数组头指针
+ * @param CommandLength 指令长度
+ * @return
+ ***********************************************************/
+void receive_dot(char *CommandRecv, uint8 CommandLength)
+{
+//  char p[20];
+	char p[20];
+	int dot_num = 0;
+	int i = 0;
+	char delims[] = ",";
+	char *result;
+	result = strtok(CommandRecv, delims);
+	while(result != NULL)
+  {
+		p[i] = atoi(result);
+		result = strtok(NULL, delims);
+		i++;
+	}
+	for(int j = 0; j < i - 1; j = j+2)
+	{
+		dot[CarInfo.dotnum].x = p[j];
+		dot[CarInfo.dotnum].y = p[j + 1];
+		dot[CarInfo.dotnum].flag = 1;
+		CarInfo.dotnum++;
+	}
+  CarInfo.dotnum = dot_num + 1;
+	SystemSettings.Complete = 'T';
 }
 /***********************************************************
  * @brief Openart Mini信息初始化
@@ -106,6 +137,16 @@ void openart_uart1_callback(LPUART_Type *base, lpuart_handle_t *handle, status_t
     {
       handle_OpenartMessage(OpenArtCommandRecv, OpenArtCommandLength);
       OpenArtCommandLength = 0;
+    }
+		if (OpenArtByteRecv == '#')
+    {
+			//seekfree_wireless_send_buff((uint8 *)OpenArtCommandRecv, strlen(OpenArtCommandRecv));
+      //接收openart传输的目标点信息（每两个个字符第一个是x第二个是y，字符数组最后是‘#’）
+      receive_dot(OpenArtCommandRecv, OpenArtCommandLength);
+      OpenArtCommandLength = 0;
+      SystemSettings.IsFound_dot = 'T';
+			uart_putchar(OPENART_MINI_UART, 0x0B);
+      rt_mb_send(buzzer_mailbox, 500); //蜂鸣器提示完成巡点
     }
   }
 

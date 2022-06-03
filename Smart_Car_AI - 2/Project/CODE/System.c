@@ -20,15 +20,16 @@
 
 SystemSettingsTypedef SystemSettings;                   //系统信息
 CarInfoTypedef CarInfo;                                 //小车信息
-ControlPidTypedef SpeedControlPid = {15.0, 2.5, 0.0};   //速度控制pid参数初始化
+ControlPidTypedef SpeedControlPid = {15.0,2.5,0.0};   //速度控制pid参数初始化
 ControlPidTypedef AngleControlPid = {4.2, 0, 30};       //角度pid参数
-ControlPidTypedef PositionControlPid = {0.07, 0.05, 0}; //位置pid参数
+ControlPidTypedef PositionControlPid = {0.08,0.06, 0}; //位置pid参数
 CarPulseTypedef CarPulse = {0, 0, 0, 0};                //编码器初值
 GyroOffsetTypedef GyroOffset = {0.0, 0.0, 0.0};         //陀螺仪零飘初始化数据
 ICMTypedef icm = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};        // ICM数据初始化
 speedTypedef speed = {0.0, 0.0};                        //速度初始化
-positionTypedef position = {0, 0};                      //位置初始化化
+positionTypedef position = {0,0};                      //位置初始化化
 coordinateTypedef coordinate = {0, 0};                  //初始坐标
+DotTypedef dot[20];                                     //目标坐标
 float dtt = 0.020;                                      //积分时间
 
 extern rt_timer_t timer1;
@@ -63,33 +64,32 @@ static inline void CarInfoInit(void)
   CarInfo.BinaryThreshold = 200; //二值化阈值
   CarInfo.RunDistance1 = 0.0;    //小车运行距离
   CarInfo.RunDistance2 = 0.0;
-
-  CarInfo.Iscorrect = 'T'; //矫正姿态是否打开
+	CarInfo.dotnum = 0;
+  CarInfo.Iscorrect = 'F'; //矫正姿态是否打开
+	CarInfo.angle=0.0;       //总钻风角度差值
   CarInfo.distance1 = 0.0; //总钻风y轴差值
   CarInfo.distance2 = 0.0; //总钻风x轴差值
 
-  //模拟点
-  DotTypedef Dot[20] = {{1, 1}, {7, 8}, {18, 22}, {25, 29}, {13, 34}, {8, 13}, {21, 10}, {10, 6}, {1, 6}, {2, 15}, {10, 10}, {22, 7}, {25, 3}, {29, 20}};
 }
 /***********************************************************
  * @brief 消除陀螺仪零点偏差
  * @param
  * @return
- ***********************************************************/
+***********************************************************/
 void gyro_offset_init(void)
 {
-  for (uint16_t i = 0; i < 100; ++i)
-  {
-    get_icm20602_gyro_spi(); // 获取陀螺仪角速度
-    GyroOffset.x += icm_gyro_x;
-    GyroOffset.y += icm_gyro_y;
-    GyroOffset.z += icm_gyro_z;
-    systick_delay_ms(5); // 最大 1Khz
-  }
+	for (uint16_t i = 0; i < 100; ++i) 
+	{
+     get_icm20602_gyro_spi();    // 获取陀螺仪角速度
+     GyroOffset.x += icm_gyro_x;
+     GyroOffset.y += icm_gyro_y;
+     GyroOffset.z += icm_gyro_z;
+     systick_delay_ms(5);    // 最大 1Khz
+   }
 
-  GyroOffset.x /= 100;
-  GyroOffset.y /= 100;
-  GyroOffset.z /= 100;
+   GyroOffset.x /= 100;
+   GyroOffset.y /= 100;
+   GyroOffset.z /= 100;
 }
 /***********************************************************
  * @brief 设置初始化
@@ -101,8 +101,8 @@ static inline void SystemSettingsInit(void)
   SystemSettings.IsFound_dot = 'F';             //是否开始目标点寻找
   SystemSettings.IsAiOn = 'F';                  //识别模式是否打开
   SystemSettings.Binary_start = 'T';            //阈值第一次求取
-  SystemSettings.Is_control = 'T';              //是否开启控制
-  SystemSettings.ImageStatusReportEnable = 'F'; //是否启动图像处理模式上报
+  SystemSettings.IsControl = 'F';              //是否开启控制
+  SystemSettings.Complete = 'F'; 
   SystemSettings.AiEnable = 'F';                //是否开启识别
   SystemSettings.FuzzyEnable = 'T';             //是否启动角度模糊控制
   SystemSettings.ChangeIEnable = 'T';           //是否启动速度变积分控制
@@ -128,15 +128,16 @@ void CarInformation_init(void)
  ***********************************************************/
 int hardware_init(void)
 {
+  
   //编码器初始化
   encoder_init();
   //姿态传感器icm20602初始化
   icm20602_init_spi();
-  gyro_offset_init();
+	gyro_offset_init();
   //摄像头总转风初始化
   mt9v03x_csi_init();
   // OpenArt初始化
-  // openart_mini_init();
+  openart_mini_init();
   //无线转串口通信初始化
   seekfree_wireless_init();
   return 0;
@@ -148,6 +149,8 @@ int hardware_init(void)
  ***********************************************************/
 int thread_init(void)
 {
+	//电机初始化
+  motor_init();
   buzzer_thread_init();      //蜂鸣器线程初始化（优先级13）
   display_thread_init();     //显示线程初始化(优先级14)
   server1_thread_init();     //服务1线程初始化（优先级11）

@@ -41,12 +41,12 @@
 
 rt_sem_t camera_sem; //摄像头信号量
 
-INIT_APP_EXPORT(motor_init); //电机首先初始化
 INIT_APP_EXPORT(thread_init);
 INIT_APP_EXPORT(hardware_init);
 INIT_APP_EXPORT(timer_init);
 
 char test0[] = "server1\n";
+int flag=0;
 int main(void)
 {
   //创建信号量
@@ -58,8 +58,20 @@ int main(void)
   //全局中断使能
   EnableGlobalIRQ(0);
   while (1)
-  {
+  { 		
     rt_sem_take(camera_sem, RT_WAITING_FOREVER); //等待摄像头采集完毕
+		if(flag==0)
+		{
+			rt_thread_mdelay(1000);
+		  CarInfo.RunDistance1=0;
+			CarInfo.RunDistance2=0;
+			CarInfo.yaw=0;
+			flag++;			
+		}
+		if(flag==1)
+		{
+//   			position.x=5;
+		}
     if (SystemSettings.Binary_start == 'T')      //阈值更新
     {
       Binary_renew(CarInfo.BinaryMethod);
@@ -67,7 +79,7 @@ int main(void)
     }
     // pit_start(PIT_CH0);
     Binary_image();                        //二值化图像
-    if (SystemSettings.IsFound_dot == 'T') //开始第一个服务程序（规划路径）
+    if (SystemSettings.IsFound_dot == 'T') //开始第一个服务程序（寻点）
     {
       // seekfree_wireless_send_buff((uint8 *)test0, sizeof(test0) - 1);
       rt_sem_release(server1_sem);
